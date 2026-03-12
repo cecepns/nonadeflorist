@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-const API_URL = 'http://api-inventory.isavralabel.com/nonadeflorist'
+const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
 
 function SubcategoryManagement() {
   const [categories, setCategories] = useState([])
