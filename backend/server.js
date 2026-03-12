@@ -124,6 +124,14 @@ async function initDb() {
     ['Senin – Minggu, 09.00 – 20.00 WIB'],
   )
 
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('instagram_handle', ?)
+  `,
+    ['nonadeflorist.smdg'],
+  )
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS banners (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -512,8 +520,8 @@ app.put('/api/settings/:key', async (req, res) => {
 
 app.get('/api/public/settings', async (_req, res) => {
   const [rows] = await pool.query(
-    'SELECT setting_key, setting_value FROM settings WHERE setting_key IN (?, ?)',
-    ['whatsapp_number', 'operational_hours'],
+    'SELECT setting_key, setting_value FROM settings WHERE setting_key IN (?, ?, ?)',
+    ['whatsapp_number', 'operational_hours', 'instagram_handle'],
   )
 
   const getValue = (key, fallback) => {
@@ -526,8 +534,13 @@ app.get('/api/public/settings', async (_req, res) => {
     'operational_hours',
     'Senin – Minggu, 09.00 – 20.00 WIB',
   )
+  const instagramHandle = getValue('instagram_handle', 'nonadeflorist.smdg')
 
-  res.json({ whatsapp_number: whatsapp, operational_hours: operationalHours })
+  res.json({
+    whatsapp_number: whatsapp,
+    operational_hours: operationalHours,
+    instagram_handle: instagramHandle,
+  })
 })
 
 app.use((err, _req, res, _next) => {

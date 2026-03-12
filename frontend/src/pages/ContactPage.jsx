@@ -7,6 +7,7 @@ function ContactPage() {
   const [operationalHours, setOperationalHours] = useState(
     "Senin – Minggu, 09.00 – 20.00 WIB"
   );
+  const [instagramHandle, setInstagramHandle] = useState("nonadeflorist.smdg");
 
   useEffect(() => {
     axios
@@ -17,6 +18,9 @@ function ContactPage() {
         }
         if (res.data?.operational_hours) {
           setOperationalHours(res.data.operational_hours);
+        }
+        if (res.data?.instagram_handle) {
+          setInstagramHandle(res.data.instagram_handle);
         }
       })
       .catch(() => {
@@ -111,6 +115,19 @@ function ContactPage() {
                 Jam Operasional
               </p>
               <p className="mt-2">{operationalHours}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-600">
+                Instagram
+              </p>
+              <a
+                href={`https://instagram.com/${instagramHandle}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700"
+              >
+                @{instagramHandle}
+              </a>
             </div>
           </div>
         </div>
