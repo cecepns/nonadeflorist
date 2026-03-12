@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  background-color: #ffffff;
+  color: #0f172a; /* slate-800 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Swiper pagination bullets — testimonial slider */
+.swiper-pagination-bullet {
+  background-color: #b45309 !important; /* coklat/orange-brown */
+  opacity: 0.4;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #92400e !important; /* lebih gelap */
+  opacity: 1;
+}
+
+.swiper-pagination-bullets {
+  bottom: -10px !important; /* beri jarak dari card testimoni */
+}
+
+.testimonial-swiper {
+  padding-bottom: 24px;
+  overflow: visible !important; /* hindari dots terpotong karena overflow */
+}
+
+.banner-swiper {
+  padding-bottom: 20px;
+}
+
+.banner-swiper .swiper-pagination-bullets {
+  bottom: 4px !important; /* naikkan dots agar tidak terpotong di mobile */
+}
