@@ -5,6 +5,8 @@ const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
 
 function AdminSettings() {
   const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [operationalHours, setOperationalHours] = useState('')
+  const [instagramHandle, setInstagramHandle] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -14,12 +16,12 @@ function AdminSettings() {
     axios
       .get(`${API_URL}/api/settings`)
       .then((res) => {
-        const whatsapp = res.data.find(
-          (item) => item.key === 'whatsapp_number',
-        )
-        if (whatsapp) {
-          setWhatsappNumber(whatsapp.value)
-        }
+        const getValue = (key) =>
+          res.data.find((item) => item.key === key)?.value || ''
+
+        setWhatsappNumber(getValue('whatsapp_number'))
+        setOperationalHours(getValue('operational_hours'))
+        setInstagramHandle(getValue('instagram_handle'))
       })
       .catch(() => {
         // ignore, keep default empty state
@@ -32,12 +34,20 @@ function AdminSettings() {
     setSaving(true)
     setMessage('')
     try {
-      await axios.put(`${API_URL}/api/settings/whatsapp_number`, {
-        value: whatsappNumber,
-      })
-      setMessage('Nomor WhatsApp berhasil disimpan.')
+      await Promise.all([
+        axios.put(`${API_URL}/api/settings/whatsapp_number`, {
+          value: whatsappNumber,
+        }),
+        axios.put(`${API_URL}/api/settings/operational_hours`, {
+          value: operationalHours,
+        }),
+        axios.put(`${API_URL}/api/settings/instagram_handle`, {
+          value: instagramHandle,
+        }),
+      ])
+      setMessage('Pengaturan berhasil disimpan.')
     } catch {
-      setMessage('Gagal menyimpan nomor WhatsApp.')
+      setMessage('Gagal menyimpan pengaturan.')
     } finally {
       setSaving(false)
     }
@@ -62,6 +72,30 @@ function AdminSettings() {
           <input
             value={whatsappNumber}
             onChange={(e) => setWhatsappNumber(e.target.value)}
+            disabled={loading}
+            className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-600">
+            Jam Operasional (contoh: Senin – Minggu, 09.00 – 20.00 WIB)
+          </label>
+          <input
+            value={operationalHours}
+            onChange={(e) => setOperationalHours(e.target.value)}
+            disabled={loading}
+            className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-600">
+            Username Instagram (tanpa @, contoh: nonadeflorist)
+          </label>
+          <input
+            value={instagramHandle}
+            onChange={(e) => setInstagramHandle(e.target.value)}
             disabled={loading}
             className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
           />
