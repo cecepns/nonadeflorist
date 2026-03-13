@@ -95,7 +95,7 @@ function ProductDetail() {
               <img
                 src={`${API_URL}${activeImage}`}
                 alt={product.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
               />
             )}
           </div>
