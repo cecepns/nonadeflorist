@@ -403,7 +403,7 @@ function HomePage() {
             )}
 
             <Swiper
-              className="quote-swiper"
+              className="quote-swiper pb-8"
               modules={[Navigation, Pagination, Autoplay]}
               navigation={
                 quotes.length > 1

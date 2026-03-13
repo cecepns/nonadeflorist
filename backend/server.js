@@ -89,6 +89,17 @@ async function initDb() {
   `)
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS product_images (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      product_id INT NOT NULL,
+      image_url VARCHAR(255) NOT NULL,
+      sort_order INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    )
+  `)
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS testimonials (
       id INT AUTO_INCREMENT PRIMARY KEY,
       customer_name VARCHAR(100) NOT NULL,
@@ -534,13 +545,22 @@ app.get('/api/products', async (_req, res) => {
 
 app.post(
   '/api/products',
-  upload.single('image'),
+  upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'images', maxCount: 8 },
+  ]),
   async (req, res) => {
     const { category_id, subcategory_id, name, price, description, is_active } =
       req.body
-    const imageUrl = req.file
-      ? `/uploads-nonadeflorist/${req.file.filename}`
-      : null
+    const imageFiles = [
+      ...(req.files?.image || []),
+      ...(req.files?.images || []),
+    ]
+
+    const mainImageUrl =
+      imageFiles.length > 0
+        ? `/uploads-nonadeflorist/${imageFiles[0].filename}`
+        : null
 
     const [result] = await pool.query(
       `INSERT INTO products
@@ -551,21 +571,39 @@ app.post(
         subcategory_id || null,
         name,
         price,
-        imageUrl,
+        mainImageUrl,
         description,
         is_active ? 1 : 0,
       ],
     )
 
+    if (imageFiles.length > 0) {
+      const values = imageFiles.map((file, index) => [
+        result.insertId,
+        `/uploads-nonadeflorist/${file.filename}`,
+        index,
+      ])
+      await pool.query(
+        `
+        INSERT INTO product_images (product_id, image_url, sort_order)
+        VALUES ?
+      `,
+        [values],
+      )
+    }
+
     res
       .status(201)
-      .json({ id: result.insertId, image_url: imageUrl, name })
+      .json({ id: result.insertId, image_url: mainImageUrl, name })
   },
 )
 
 app.put(
   '/api/products/:id',
-  upload.single('image'),
+  upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'images', maxCount: 8 },
+  ]),
   async (req, res) => {
     const { id } = req.params
     const { category_id, subcategory_id, name, price, description, is_active } =
@@ -577,9 +615,14 @@ app.put(
   )
   const currentImage = rows.length ? rows[0].image_url : null
 
+  const imageFiles = [
+    ...(req.files?.image || []),
+    ...(req.files?.images || []),
+  ]
+
   let imageUrl = req.body.image_url || currentImage || null
-  if (req.file) {
-    imageUrl = `/uploads-nonadeflorist/${req.file.filename}`
+  if (imageFiles.length > 0) {
+    imageUrl = `/uploads-nonadeflorist/${imageFiles[0].filename}`
   }
 
   await pool.query(
@@ -598,8 +641,28 @@ app.put(
     ],
   )
 
-  if (req.file && currentImage && currentImage !== imageUrl) {
+  if (imageFiles.length > 0 && currentImage && currentImage !== imageUrl) {
     deleteImageIfExists(currentImage)
+  }
+
+  if (imageFiles.length > 0) {
+    const [[{ maxOrder }]] = await pool.query(
+      'SELECT COALESCE(MAX(sort_order), -1) AS maxOrder FROM product_images WHERE product_id = ?',
+      [id],
+    )
+    let start = maxOrder + 1
+    const values = imageFiles.map((file) => {
+      const v = [id, `/uploads-nonadeflorist/${file.filename}`, start]
+      start += 1
+      return v
+    })
+    await pool.query(
+      `
+      INSERT INTO product_images (product_id, image_url, sort_order)
+      VALUES ?
+    `,
+      [values],
+    )
   }
 
   res.json({ id, image_url: imageUrl, name })
@@ -647,7 +710,15 @@ app.get('/api/public/products/:id', async (req, res) => {
   if (!rows.length) {
     return res.status(404).json({ message: 'Produk tidak ditemukan' })
   }
-  res.json(rows[0])
+  const product = rows[0]
+  const [images] = await pool.query(
+    'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC',
+    [id],
+  )
+  res.json({
+    ...product,
+    images,
+  })
 })
 
 // ADMIN Testimonials
@@ -879,6 +950,43 @@ app.put('/api/settings/:key', async (req, res) => {
 
   res.json({ key, value: value.trim() })
 })
+
+app.post(
+  '/api/settings/logo',
+  upload.single('logo'),
+  async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: 'File logo wajib diupload' })
+    }
+
+    const newUrl = `/uploads-nonadeflorist/${req.file.filename}`
+
+    const [rows] = await pool.query(
+      'SELECT setting_value FROM settings WHERE setting_key = ?',
+      ['landing_logo_url'],
+    )
+    const previous = rows.length ? rows[0].setting_value : null
+
+    await pool.query(
+      `
+      INSERT INTO settings (setting_key, setting_value)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+    `,
+      ['landing_logo_url', newUrl],
+    )
+
+    if (
+      previous &&
+      previous !== newUrl &&
+      previous.startsWith('/uploads-nonadeflorist/')
+    ) {
+      deleteImageIfExists(previous)
+    }
+
+    res.json({ key: 'landing_logo_url', value: newUrl })
+  },
+)
 
 app.get('/api/public/settings', async (_req, res) => {
   const [rows] = await pool.query(

@@ -261,19 +261,54 @@ function AdminSettings() {
           />
         </div>
 
-        <div className="pt-2 border-t border-slate-100">
+        <div className="pt-2 border-t border-slate-100 space-y-3">
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
             Header & Logo
           </h3>
-          <label className="mb-1 block text-xs font-medium text-slate-600">
-            URL Logo (relative ke API, contoh: /uploads-nonadeflorist/logo.png)
-          </label>
-          <input
-            value={landingLogoUrl}
-            onChange={(e) => setLandingLogoUrl(e.target.value)}
-            disabled={loading}
-            className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
-          />
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">
+              Upload Logo (gambar akan disimpan di server)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={loading}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const data = new FormData()
+                data.append('logo', file)
+                try {
+                  const res = await axios.post(
+                    `${API_URL}/api/settings/logo`,
+                    data,
+                    {
+                      headers: { 'Content-Type': 'multipart/form-data' },
+                    },
+                  )
+                  if (res.data?.value) {
+                    setLandingLogoUrl(res.data.value)
+                    setMessage('Logo berhasil diupload.')
+                  }
+                } catch {
+                  setMessage('Gagal mengupload logo.')
+                }
+              }}
+              className="w-full text-xs text-slate-600"
+            />
+            {landingLogoUrl && (
+              <div className="mt-3 inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <img
+                  src={`${API_URL}${landingLogoUrl}`}
+                  alt="Logo saat ini"
+                  className="h-10 w-auto rounded-md object-contain"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Logo saat ini. Upload baru untuk mengganti.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="pt-2 border-t border-slate-100 space-y-3">

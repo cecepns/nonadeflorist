@@ -17,7 +17,7 @@ function ProductManagement() {
     description: '',
     is_active: true,
   })
-  const [imageFile, setImageFile] = useState(null)
+  const [imageFiles, setImageFiles] = useState([])
   const [editingId, setEditingId] = useState(null)
 
   const fetchAll = () => {
@@ -42,13 +42,15 @@ function ProductManagement() {
     Object.entries(form).forEach(([key, value]) => {
       data.append(key, value)
     })
-    if (imageFile) {
-      data.append('image', imageFile)
+    if (imageFiles.length > 0) {
+      imageFiles.forEach((file) => {
+        data.append('images', file)
+      })
     }
 
     if (editingId) {
       const current = items.find((it) => it.id === editingId)
-      if (current?.image_url && !imageFile) {
+      if (current?.image_url && imageFiles.length === 0) {
         data.append('image_url', current.image_url)
       }
       await axios.put(`${API_URL}/api/products/${editingId}`, data, {
@@ -68,7 +70,7 @@ function ProductManagement() {
       description: '',
       is_active: true,
     })
-    setImageFile(null)
+    setImageFiles([])
     setEditingId(null)
     fetchAll()
   }
@@ -83,7 +85,7 @@ function ProductManagement() {
       description: item.description || '',
       is_active: !!item.is_active,
     })
-    setImageFile(null)
+    setImageFiles([])
   }
 
   const handleDelete = async (id) => {
@@ -174,12 +176,15 @@ function ProductManagement() {
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-slate-600">
-              Upload foto
+              Upload foto (bisa lebih dari satu)
             </label>
             <input
               type="file"
+              multiple
               accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              onChange={(e) =>
+                setImageFiles(Array.from(e.target.files || []))
+              }
               className="w-full text-xs text-slate-600"
             />
           </div>

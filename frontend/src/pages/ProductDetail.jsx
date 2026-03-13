@@ -9,6 +9,7 @@ function ProductDetail() {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [settings, setSettings] = useState(null)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
 
   useEffect(() => {
     setLoading(true)
@@ -20,6 +21,7 @@ function ProductDetail() {
       .then(([productRes, settingsRes]) => {
         setProduct(productRes.data)
         setSettings(settingsRes.data)
+        setActiveImageIndex(0)
       })
       .catch(() => {
         setProduct(null)
@@ -58,6 +60,24 @@ function ProductDetail() {
     )
   }
 
+  const galleryImages = (() => {
+    const extra =
+      product.images && Array.isArray(product.images)
+        ? product.images.map((img) => img.image_url)
+        : []
+    const base = product.image_url ? [product.image_url, ...extra] : extra
+    // remove duplicates while preserving order
+    const seen = new Set()
+    return base.filter((url) => {
+      if (seen.has(url)) return false
+      seen.add(url)
+      return true
+    })
+  })()
+
+  const activeImage =
+    galleryImages.length > 0 ? galleryImages[activeImageIndex] : null
+
   return (
     <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
       <button
@@ -71,14 +91,36 @@ function ProductDetail() {
       <div className="grid gap-8 md:grid-cols-[1.1fr,0.9fr]">
         <div className="rounded-3xl bg-slate-50 p-3">
           <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100">
-            {product.image_url && (
+            {activeImage && (
               <img
-                src={`${API_URL}${product.image_url}`}
+                src={`${API_URL}${activeImage}`}
                 alt={product.name}
                 className="h-full w-full object-cover"
               />
             )}
           </div>
+          {galleryImages.length > 1 && (
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              {galleryImages.map((img, index) => (
+                <button
+                  key={img + index}
+                  type="button"
+                  onClick={() => setActiveImageIndex(index)}
+                  className={`relative h-16 w-20 flex-shrink-0 overflow-hidden rounded-xl border ${
+                    index === activeImageIndex
+                      ? 'border-primary-500 ring-1 ring-primary-300'
+                      : 'border-slate-200'
+                  }`}
+                >
+                  <img
+                    src={`${API_URL}${img}`}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
