@@ -19,6 +19,8 @@ function ProductManagement() {
   })
   const [imageFiles, setImageFiles] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [editingProduct, setEditingProduct] = useState(null)
+  const [editingImages, setEditingImages] = useState([])
 
   const fetchAll = () => {
     axios.get(`${API_URL}/api/categories`).then((res) => setCategories(res.data))
@@ -72,20 +74,27 @@ function ProductManagement() {
     })
     setImageFiles([])
     setEditingId(null)
+    setEditingProduct(null)
+    setEditingImages([])
     fetchAll()
   }
 
   const handleEdit = (item) => {
     setEditingId(item.id)
-    setForm({
-      category_id: String(item.category_id),
-      subcategory_id: item.subcategory_id ? String(item.subcategory_id) : '',
-      name: item.name,
-      price: String(item.price),
-      description: item.description || '',
-      is_active: !!item.is_active,
+    axios.get(`${API_URL}/api/products/${item.id}`).then((res) => {
+      const data = res.data
+      setEditingProduct(data)
+      setEditingImages(data.images || [])
+      setForm({
+        category_id: String(data.category_id),
+        subcategory_id: data.subcategory_id ? String(data.subcategory_id) : '',
+        name: data.name,
+        price: String(data.price),
+        description: data.description || '',
+        is_active: !!data.is_active,
+      })
+      setImageFiles([])
     })
-    setImageFiles([])
   }
 
   const handleDelete = async (id) => {
@@ -101,7 +110,9 @@ function ProductManagement() {
         description: '',
         is_active: true,
       })
-      setImageFile(null)
+      setImageFiles([])
+      setEditingProduct(null)
+      setEditingImages([])
     }
     fetchAll()
   }
@@ -187,7 +198,90 @@ function ProductManagement() {
               }
               className="w-full text-xs text-slate-600"
             />
+            {imageFiles.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {imageFiles.map((file, idx) => (
+                  <div
+                    key={`${file.name}-${idx}`}
+                    className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+                  >
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      className="h-20 w-24 object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+          {editingProduct && (
+            <div className="md:col-span-2 space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Gambar saat ini
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {editingImages.map((img) => {
+                  const isMain =
+                    editingProduct.image_url &&
+                    editingProduct.image_url === img.image_url
+                  return (
+                    <div
+                      key={img.id}
+                      className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+                    >
+                      <img
+                        src={`${API_URL}${img.image_url}`}
+                        alt={editingProduct.name}
+                        className="h-20 w-24 object-cover"
+                      />
+                      {isMain && (
+                        <span className="absolute left-1 top-1 rounded-full bg-primary-500 px-2 py-0.5 text-[10px] font-medium text-white">
+                          Utama
+                        </span>
+                      )}
+                      <div className="flex gap-1 p-1">
+                        {!isMain && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const res = await axios.put(
+                                `${API_URL}/api/products/${editingId}/main-image`,
+                                { image_id: img.id },
+                              )
+                              setEditingProduct(res.data)
+                              setEditingImages(res.data.images || [])
+                            }}
+                            className="flex-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-primary-600 ring-1 ring-primary-200 hover:bg-primary-50"
+                          >
+                            Jadikan utama
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const res = await axios.delete(
+                              `${API_URL}/api/products/${editingId}/images/${img.id}`,
+                            )
+                            setEditingProduct(res.data)
+                            setEditingImages(res.data.images || [])
+                          }}
+                          className="flex-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-red-500 ring-1 ring-red-200 hover:bg-red-50"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+                {editingImages.length === 0 && (
+                  <p className="text-[11px] text-slate-500">
+                    Belum ada gambar tersimpan untuk product ini.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2 pt-5">
             <input
               id="is_active"

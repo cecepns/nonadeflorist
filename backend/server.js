@@ -559,6 +559,30 @@ app.get('/api/products', async (_req, res) => {
   res.json(rows)
 })
 
+app.get('/api/products/:id', async (req, res) => {
+  const { id } = req.params
+  const [rows] = await pool.query(
+    `SELECT p.*, c.name AS category_name, s.name AS subcategory_name
+     FROM products p
+     JOIN categories c ON c.id = p.category_id
+     LEFT JOIN subcategories s ON s.id = p.subcategory_id
+     WHERE p.id = ?`,
+    [id],
+  )
+  if (!rows.length) {
+    return res.status(404).json({ message: 'Produk tidak ditemukan' })
+  }
+  const product = rows[0]
+  const [images] = await pool.query(
+    'SELECT id, image_url, sort_order FROM product_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC',
+    [id],
+  )
+  res.json({
+    ...product,
+    images,
+  })
+})
+
 app.post(
   '/api/products',
   upload.fields([
@@ -687,18 +711,128 @@ app.put(
 
 app.delete('/api/products/:id', async (req, res) => {
   const { id } = req.params
-  const [rows] = await pool.query(
+
+  const [productRows] = await pool.query(
     'SELECT image_url FROM products WHERE id = ?',
     [id],
   )
-  const currentImage = rows.length ? rows[0].image_url : null
+  const mainImage = productRows.length ? productRows[0].image_url : null
 
-  await pool.query('DELETE FROM products WHERE id=?', [id])
+  const [imageRows] = await pool.query(
+    'SELECT image_url FROM product_images WHERE product_id = ?',
+    [id],
+  )
 
-  if (currentImage) {
-    deleteImageIfExists(currentImage)
+  await pool.query('DELETE FROM product_images WHERE product_id = ?', [id])
+  await pool.query('DELETE FROM products WHERE id = ?', [id])
+
+  const allImageUrls = new Set()
+  if (mainImage) allImageUrls.add(mainImage)
+  for (const row of imageRows) {
+    if (row.image_url) {
+      allImageUrls.add(row.image_url)
+    }
   }
+
+  for (const url of allImageUrls) {
+    deleteImageIfExists(url)
+  }
+
   res.status(204).end()
+})
+
+app.put('/api/products/:id/main-image', async (req, res) => {
+  const { id } = req.params
+  const { image_id } = req.body
+
+  const [rows] = await pool.query(
+    'SELECT image_url FROM product_images WHERE id = ? AND product_id = ?',
+    [image_id, id],
+  )
+  if (!rows.length) {
+    return res.status(404).json({ message: 'Gambar tidak ditemukan' })
+  }
+
+  const imageUrl = rows[0].image_url
+  await pool.query('UPDATE products SET image_url = ? WHERE id = ?', [
+    imageUrl,
+    id,
+  ])
+
+  const [productRows] = await pool.query(
+    `SELECT p.*, c.name AS category_name, s.name AS subcategory_name
+     FROM products p
+     JOIN categories c ON c.id = p.category_id
+     LEFT JOIN subcategories s ON s.id = p.subcategory_id
+     WHERE p.id = ?`,
+    [id],
+  )
+  const [images] = await pool.query(
+    'SELECT id, image_url, sort_order FROM product_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC',
+    [id],
+  )
+
+  res.json({
+    ...productRows[0],
+    images,
+  })
+})
+
+app.delete('/api/products/:id/images/:imageId', async (req, res) => {
+  const { id, imageId } = req.params
+
+  const [rows] = await pool.query(
+    'SELECT image_url FROM product_images WHERE id = ? AND product_id = ?',
+    [imageId, id],
+  )
+  if (!rows.length) {
+    return res.status(404).json({ message: 'Gambar tidak ditemukan' })
+  }
+
+  const imageUrl = rows[0].image_url
+
+  await pool.query('DELETE FROM product_images WHERE id = ? AND product_id = ?', [
+    imageId,
+    id,
+  ])
+
+  const [productRows] = await pool.query(
+    'SELECT image_url FROM products WHERE id = ?',
+    [id],
+  )
+  const currentMain = productRows.length ? productRows[0].image_url : null
+
+  if (currentMain && currentMain === imageUrl) {
+    const [nextImages] = await pool.query(
+      'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC LIMIT 1',
+      [id],
+    )
+    const newMain = nextImages.length ? nextImages[0].image_url : null
+    await pool.query('UPDATE products SET image_url = ? WHERE id = ?', [
+      newMain,
+      id,
+    ])
+  }
+
+  deleteImageIfExists(imageUrl)
+
+  const [updatedProductRows] = await pool.query(
+    `SELECT p.*, c.name AS category_name, s.name AS subcategory_name
+     FROM products p
+     JOIN categories c ON c.id = p.category_id
+     LEFT JOIN subcategories s ON s.id = p.subcategory_id
+     WHERE p.id = ?`,
+    [id],
+  )
+  const [images] = await pool.query(
+    'SELECT id, image_url, sort_order FROM product_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC',
+    [id],
+  )
+
+  res.json({
+    ...updatedProductRows[0],
+    images,
+  })
 })
 
 app.get('/api/public/products', async (_req, res) => {
