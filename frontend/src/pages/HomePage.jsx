@@ -384,15 +384,15 @@ function HomePage() {
       {/* QUOTE PEMILIK */}
       {quotes.length > 0 && (
         <section
-          className="mx-auto max-w-6xl px-4 mb-10 rounded-3xl bg-slate-900 px-4 py-8 text-slate-100 md:px-8 md:py-10 overflow-x-hidden"
+          className="mx-auto max-w-6xl px-4 mb-10 rounded-3xl bg-primary-50/60 border border-primary-100 px-4 py-8 text-slate-900 md:px-8 md:py-10 overflow-x-hidden"
           data-aos="fade-up"
         >
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-500">
                 Dari Pemilik Nonade Florist
               </p>
-              <h2 className="text-xl font-semibold text-slate-50 md:text-2xl">
+              <h2 className="text-xl font-semibold text-slate-900 md:text-2xl">
                 Sedikit pesan hangat untuk kamu yang mampir.
               </h2>
             </div>
@@ -403,13 +403,13 @@ function HomePage() {
               <>
                 <button
                   type="button"
-                  className="quote-prev absolute left-0 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full border border-primary-300/60 bg-slate-900/90 text-primary-100 shadow-sm hover:bg-slate-800 md:flex"
+                    className="quote-prev absolute left-0 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full border border-primary-200 bg-white/95 text-primary-600 shadow-sm hover:bg-primary-50 md:flex"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <button
                   type="button"
-                  className="quote-next absolute right-0 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-primary-300/60 bg-slate-900/90 text-primary-100 shadow-sm hover:bg-slate-800 md:flex"
+                    className="quote-next absolute right-0 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-primary-200 bg-white/95 text-primary-600 shadow-sm hover:bg-primary-50 md:flex"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
@@ -417,7 +417,7 @@ function HomePage() {
             )}
 
             <Swiper
-              className="quote-swiper pb-8"
+              className="quote-swiper pb-12"
               modules={[Navigation, Pagination, Autoplay]}
               navigation={
                 quotes.length > 1
@@ -442,11 +442,13 @@ function HomePage() {
             >
               {quotes.map((item) => (
                 <SwiperSlide key={item.id}>
-                  <div className="h-full rounded-3xl bg-slate-800/80 p-6 text-sm shadow-sm md:p-7">
-                    <p className="text-xs uppercase tracking-[0.18em] text-primary-200">
-                      {item.author || "Pemilik Nonade Florist"}
-                    </p>
-                    <p className="mt-3 text-base leading-relaxed text-slate-50">
+                  <div className="h-full rounded-3xl bg-white p-6 text-sm shadow-sm md:p-7">
+                    {!!item.author && item.author !== "Pemilik Nonade Florist" && (
+                      <p className="text-xs uppercase tracking-[0.18em] text-primary-500">
+                        {item.author}
+                      </p>
+                    )}
+                    <p className="mt-3 text-base leading-relaxed text-slate-800">
                       “{item.message}”
                     </p>
                   </div>
