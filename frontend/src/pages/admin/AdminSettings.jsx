@@ -39,6 +39,8 @@ function AdminSettings() {
   const [homeWhy2Desc, setHomeWhy2Desc] = useState('')
   const [homeWhy3Title, setHomeWhy3Title] = useState('')
   const [homeWhy3Desc, setHomeWhy3Desc] = useState('')
+  const [homeHeroImageUrl, setHomeHeroImageUrl] = useState('')
+  const [homeWhyImageUrl, setHomeWhyImageUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -86,6 +88,8 @@ function AdminSettings() {
         setHomeWhy2Desc(getValue('home_why_2_desc'))
         setHomeWhy3Title(getValue('home_why_3_title'))
         setHomeWhy3Desc(getValue('home_why_3_desc'))
+        setHomeHeroImageUrl(getValue('home_hero_image_url'))
+        setHomeWhyImageUrl(getValue('home_why_image_url'))
       })
       .catch(() => {
         // ignore, keep default empty state
@@ -456,6 +460,50 @@ function AdminSettings() {
               className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
             />
           </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">
+              Gambar hero (upload untuk mengganti)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={loading}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const data = new FormData()
+                data.append('image', file)
+                try {
+                  const res = await axios.post(
+                    `${API_URL}/api/settings/home-hero-image`,
+                    data,
+                    {
+                      headers: { 'Content-Type': 'multipart/form-data' },
+                    },
+                  )
+                  if (res.data?.value) {
+                    setHomeHeroImageUrl(res.data.value)
+                    setMessage('Gambar hero berhasil diupload.')
+                  }
+                } catch {
+                  setMessage('Gagal mengupload gambar hero.')
+                }
+              }}
+              className="w-full text-xs text-slate-600"
+            />
+            {homeHeroImageUrl && (
+              <div className="mt-3 inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <img
+                  src={`${API_URL}${homeHeroImageUrl}`}
+                  alt="Gambar hero saat ini"
+                  className="h-16 w-auto rounded-md object-cover"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Gambar hero saat ini. Upload baru untuk mengganti.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="pt-2 border-t border-slate-100 space-y-3">
@@ -668,6 +716,50 @@ function AdminSettings() {
                 className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
               />
             </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">
+              Gambar section (upload untuk mengganti)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={loading}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const data = new FormData()
+                data.append('image', file)
+                try {
+                  const res = await axios.post(
+                    `${API_URL}/api/settings/home-why-image`,
+                    data,
+                    {
+                      headers: { 'Content-Type': 'multipart/form-data' },
+                    },
+                  )
+                  if (res.data?.value) {
+                    setHomeWhyImageUrl(res.data.value)
+                    setMessage('Gambar section berhasil diupload.')
+                  }
+                } catch {
+                  setMessage('Gagal mengupload gambar section.')
+                }
+              }}
+              className="w-full text-xs text-slate-600"
+            />
+            {homeWhyImageUrl && (
+              <div className="mt-3 inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <img
+                  src={`${API_URL}${homeWhyImageUrl}`}
+                  alt="Gambar section saat ini"
+                  className="h-20 w-auto rounded-md object-cover"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Gambar section saat ini. Upload baru untuk mengganti.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

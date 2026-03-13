@@ -95,7 +95,7 @@ async function initDb() {
       image_url VARCHAR(255) NOT NULL,
       sort_order INT NOT NULL DEFAULT 0,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+      INDEX idx_product_images_product_id (product_id)
     )
   `)
 
@@ -176,6 +176,22 @@ async function initDb() {
     INSERT IGNORE INTO settings (setting_key, setting_value)
     VALUES ('landing_logo_url', ?)
   `,
+    [''],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_image_url', ?)
+    `,
+    [''],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_image_url', ?)
+    `,
     [''],
   )
 
@@ -988,6 +1004,84 @@ app.post(
   },
 )
 
+app.post(
+  '/api/settings/home-hero-image',
+  upload.single('image'),
+  async (req, res) => {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ message: 'File gambar hero wajib diupload' })
+    }
+
+    const newUrl = `/uploads-nonadeflorist/${req.file.filename}`
+
+    const [rows] = await pool.query(
+      'SELECT setting_value FROM settings WHERE setting_key = ?',
+      ['home_hero_image_url'],
+    )
+    const previous = rows.length ? rows[0].setting_value : null
+
+    await pool.query(
+      `
+      INSERT INTO settings (setting_key, setting_value)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+    `,
+      ['home_hero_image_url', newUrl],
+    )
+
+    if (
+      previous &&
+      previous !== newUrl &&
+      previous.startsWith('/uploads-nonadeflorist/')
+    ) {
+      deleteImageIfExists(previous)
+    }
+
+    res.json({ key: 'home_hero_image_url', value: newUrl })
+  },
+)
+
+app.post(
+  '/api/settings/home-why-image',
+  upload.single('image'),
+  async (req, res) => {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ message: 'File gambar wajib diupload' })
+    }
+
+    const newUrl = `/uploads-nonadeflorist/${req.file.filename}`
+
+    const [rows] = await pool.query(
+      'SELECT setting_value FROM settings WHERE setting_key = ?',
+      ['home_why_image_url'],
+    )
+    const previous = rows.length ? rows[0].setting_value : null
+
+    await pool.query(
+      `
+      INSERT INTO settings (setting_key, setting_value)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+    `,
+      ['home_why_image_url', newUrl],
+    )
+
+    if (
+      previous &&
+      previous !== newUrl &&
+      previous.startsWith('/uploads-nonadeflorist/')
+    ) {
+      deleteImageIfExists(previous)
+    }
+
+    res.json({ key: 'home_why_image_url', value: newUrl })
+  },
+)
+
 app.get('/api/public/settings', async (_req, res) => {
   const [rows] = await pool.query(
     'SELECT setting_key, setting_value FROM settings',
@@ -1005,6 +1099,8 @@ app.get('/api/public/settings', async (_req, res) => {
   )
   const instagramHandle = getValue('instagram_handle', 'nonadeflorist.smdg')
   const landingLogoUrl = getValue('landing_logo_url', '')
+  const homeHeroImageUrl = getValue('home_hero_image_url', '')
+  const homeWhyImageUrl = getValue('home_why_image_url', '')
 
   const aboutTitle = getValue(
     'about_title',
@@ -1138,6 +1234,7 @@ app.get('/api/public/settings', async (_req, res) => {
       title: homeHeroTitle,
       highlight: homeHeroHighlight,
       description: homeHeroDescription,
+      image_url: homeHeroImageUrl,
     },
     home_quick: {
       badge: homeQuickBadge,
@@ -1180,6 +1277,7 @@ app.get('/api/public/settings', async (_req, res) => {
           description: homeWhy3Desc,
         },
       ],
+      image_url: homeWhyImageUrl,
     },
   })
 })

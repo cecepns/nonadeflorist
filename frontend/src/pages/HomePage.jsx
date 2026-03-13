@@ -5,10 +5,10 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import heroImage from "../assets/home-image.jpg";
 import { API_URL } from "../utils/apiConfig";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import heroImage from "../assets/home-image.jpg";
 import whyChooseUsImage from "../assets/why-choose-us.jpg";
 
 function HomePage() {
@@ -16,6 +16,8 @@ function HomePage() {
   const [quotes, setQuotes] = useState([]);
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
+  const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [whyImageUrl, setWhyImageUrl] = useState("");
   const [heroContent, setHeroContent] = useState({
     badge: "Nonade Florist",
     title: "Buket bunga kurasi",
@@ -96,13 +98,21 @@ function HomePage() {
       .get(`${API_URL}/api/public/settings`)
       .then((res) => {
         if (res.data?.home_hero) {
-          setHeroContent((prev) => ({ ...prev, ...res.data.home_hero }));
+          const { image_url, ...heroRest } = res.data.home_hero;
+          setHeroContent((prev) => ({ ...prev, ...heroRest }));
+          if (image_url) {
+            setHeroImageUrl(image_url);
+          }
         }
         if (res.data?.home_quick) {
           setQuickSection((prev) => ({ ...prev, ...res.data.home_quick }));
         }
         if (res.data?.home_why) {
-          setWhySection((prev) => ({ ...prev, ...res.data.home_why }));
+          const { image_url, ...whyRest } = res.data.home_why;
+          setWhySection((prev) => ({ ...prev, ...whyRest }));
+          if (image_url) {
+            setWhyImageUrl(image_url);
+          }
         }
       })
       .catch(() => {
@@ -228,7 +238,11 @@ function HomePage() {
         </div>
 
         <div className="max-w-lg" data-aos="fade-left">
-          <img src={heroImage} alt="Hero Image" />
+          <img
+            src={heroImageUrl ? `${API_URL}${heroImageUrl}` : heroImage}
+            alt="Hero Image"
+            className="w-full h-full object-cover rounded-3xl"
+          />
         </div>
       </section>
 
@@ -342,7 +356,7 @@ function HomePage() {
       >
         <div className="w-full h-96 flex justify-center items-center rounded-3xl overflow-hidden">
           <img
-            src={whyChooseUsImage}
+            src={whyImageUrl ? `${API_URL}${whyImageUrl}` : whyChooseUsImage}
             alt="Why Choose Us"
             className="w-full h-full object-cover object-bottom"
           />
