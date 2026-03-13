@@ -13,8 +13,63 @@ import whyChooseUsImage from "../assets/why-choose-us.jpg";
 
 function HomePage() {
   const [testimonials, setTestimonials] = useState([]);
+  const [quotes, setQuotes] = useState([]);
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
+  const [heroContent, setHeroContent] = useState({
+    badge: "Nonade Florist",
+    title: "Buket bunga kurasi",
+    highlight: "untuk setiap momen manis.",
+    description:
+      "Buket Bunga • Papan Bunga • Standing Flower Grand Opening • Wisuda • Wedding • Duka Cita • Flower Box • Hampers Unik • Dibuat dengan bunga segar & kualitas terbaik",
+  });
+  const [quickSection, setQuickSection] = useState({
+    badge: "Pilihan cepat",
+    title: "Temukan buket sesuai momennya",
+    cards: [
+      {
+        badge: "Handmade & Custom",
+        title: "Rangkaian sesuai cerita Anda",
+        description:
+          "Setiap rangkaian dibuat manual dengan detail & bisa request warna, tema, dan budget sesuai kebutuhan Anda.",
+        variant: "primary",
+      },
+      {
+        badge: "Same Day Delivery Sumedang",
+        title: "Kirim di hari yang sama",
+        description:
+          "Pesan hari ini, kirim hari ini. Layanan cepat untuk surprise, ucapan, dan kebutuhan mendadak.",
+        variant: "neutral",
+      },
+      {
+        badge: "Bunga Segar & Premium Quality",
+        title: "Tampilan elegan & tahan lama",
+        description:
+          "Menggunakan bunga fresh & material premium agar tampil elegan, rapi, dan tahan lebih lama.",
+        variant: "accent",
+      },
+    ],
+  });
+  const [whySection, setWhySection] = useState({
+    badge: "Kenapa Nonade?",
+    title: "Detail kecil yang membuat buket terasa lebih thoughtful.",
+    bullets: [
+      {
+        title: "Konsultasi palette warna:",
+        description: "sesuaikan suasana acara dan preferensi penerima.",
+      },
+      {
+        title: "Kartu ucapan handwritten:",
+        description:
+          "pesan pendek yang ditulis rapi menambah sentuhan personal.",
+      },
+      {
+        title: "Packaging yang fotogenik:",
+        description:
+          "setiap buket dirancang siap difoto tanpa perlu diatur ulang.",
+      },
+    ],
+  });
 
   useEffect(() => {
     axios
@@ -31,7 +86,39 @@ function HomePage() {
       .get(`${API_URL}/api/public/banners`)
       .then((res) => setBanners(res.data))
       .catch(() => setBanners([]));
+
+    axios
+      .get(`${API_URL}/api/public/quotes`)
+      .then((res) => setQuotes(res.data))
+      .catch(() => setQuotes([]));
+
+    axios
+      .get(`${API_URL}/api/public/settings`)
+      .then((res) => {
+        if (res.data?.home_hero) {
+          setHeroContent((prev) => ({ ...prev, ...res.data.home_hero }));
+        }
+        if (res.data?.home_quick) {
+          setQuickSection((prev) => ({ ...prev, ...res.data.home_quick }));
+        }
+        if (res.data?.home_why) {
+          setWhySection((prev) => ({ ...prev, ...res.data.home_why }));
+        }
+      })
+      .catch(() => {
+        // keep defaults
+      });
   }, []);
+
+  const getQuickCardClasses = (variant) => {
+    if (variant === "accent") {
+      return "rounded-3xl border border-accent-100 bg-accent-50/40 p-4 shadow-sm";
+    }
+    if (variant === "neutral") {
+      return "rounded-3xl border border-slate-100 bg-white p-4 shadow-sm";
+    }
+    return "rounded-3xl border border-primary-100 bg-primary-50/40 p-4 shadow-sm";
+  };
 
   return (
     <div>
@@ -107,18 +194,16 @@ function HomePage() {
       <section className="mx-auto max-w-6xl px-4 flex flex-col gap-10 pb-16 pt-10 md:flex-row md:items-center md:pb-20 md:pt-16">
         <div className="md:w-3/5" data-aos="fade-up">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary-500">
-            Nonade Florist
+            {heroContent.badge}
           </p>
           <h1 className="mt-3 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl md:text-[2.7rem] md:leading-[1.15]">
-            Buket bunga kurasi
+            {heroContent.title}
             <span className="block text-primary-500">
-              untuk setiap momen manis.
+              {heroContent.highlight}
             </span>
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-600 md:text-base">
-            Buket Bunga • Papan Bunga • Standing Flower Grand Opening • Wisuda •
-            Wedding • Duka Cita • Flower Box • Hampers Unik • Dibuat dengan
-            bunga segar & kualitas terbaik
+            {heroContent.description}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3 text-xs md:text-sm">
             <button
@@ -156,51 +241,28 @@ function HomePage() {
         <header className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-500">
-              Pilihan cepat
+              {quickSection.badge}
             </p>
             <h2 className="text-lg font-semibold text-slate-900 md:text-xl">
-              Temukan buket sesuai momennya
+              {quickSection.title}
             </h2>
           </div>
         </header>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <div className="rounded-3xl border border-primary-100 bg-primary-50/40 p-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-600">
-              Handmade & Custom
-            </p>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              Rangkaian sesuai cerita Anda
-            </p>
-            <p className="mt-1 text-xs text-slate-600">
-              Setiap rangkaian dibuat manual dengan detail & bisa request warna,
-              tema, dan budget sesuai kebutuhan Anda.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Same Day Delivery Sumedang
-            </p>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              Kirim di hari yang sama
-            </p>
-            <p className="mt-1 text-xs text-slate-600">
-              Pesan hari ini, kirim hari ini. Layanan cepat untuk surprise,
-              ucapan, dan kebutuhan mendadak.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-accent-100 bg-accent-50/40 p-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-700">
-              Bunga Segar & Premium Quality
-            </p>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              Tampilan elegan & tahan lama
-            </p>
-            <p className="mt-1 text-xs text-slate-600">
-              Menggunakan bunga fresh & material premium agar tampil elegan,
-              rapi, dan tahan lebih lama.
-            </p>
-          </div>
+          {quickSection.cards.map((card) => (
+            <div key={card.title} className={getQuickCardClasses(card.variant)}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-600">
+                {card.badge}
+              </p>
+              <p className="mt-2 text-sm font-semibold text-slate-900">
+                {card.title}
+              </p>
+              <p className="mt-1 text-xs text-slate-600">
+                {card.description}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -287,33 +349,99 @@ function HomePage() {
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-500">
-            Kenapa Nonade?
+            {whySection.badge}
           </p>
           <h2 className="mt-2 text-lg font-semibold text-slate-900 md:text-xl">
-            Detail kecil yang membuat buket terasa lebih thoughtful.
+            {whySection.title}
           </h2>
           <ul className="mt-4 space-y-3 text-sm text-slate-600 md:text-base">
-            <li>
-              <span className="font-semibold text-slate-800">
-                Konsultasi palette warna:
-              </span>{" "}
-              sesuaikan suasana acara dan preferensi penerima.
-            </li>
-            <li>
-              <span className="font-semibold text-slate-800">
-                Kartu ucapan handwritten:
-              </span>{" "}
-              pesan pendek yang ditulis rapi menambah sentuhan personal.
-            </li>
-            <li>
-              <span className="font-semibold text-slate-800">
-                Packaging yang fotogenik:
-              </span>{" "}
-              setiap buket dirancang siap difoto tanpa perlu diatur ulang.
-            </li>
+            {whySection.bullets.map((item) => (
+              <li key={item.title}>
+                <span className="font-semibold text-slate-800">
+                  {item.title}
+                </span>{" "}
+                {item.description}
+              </li>
+            ))}
           </ul>
         </div>
       </section>
+
+      {/* QUOTE PEMILIK */}
+      {quotes.length > 0 && (
+        <section
+          className="mx-auto max-w-6xl px-4 mb-10 rounded-3xl bg-slate-900 px-4 py-8 text-slate-100 md:px-8 md:py-10 overflow-x-hidden"
+          data-aos="fade-up"
+        >
+          <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-300">
+                Dari Pemilik Nonade Florist
+              </p>
+              <h2 className="text-xl font-semibold text-slate-50 md:text-2xl">
+                Sedikit pesan hangat untuk kamu yang mampir.
+              </h2>
+            </div>
+          </div>
+
+          <div className="relative">
+            {quotes.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="quote-prev absolute left-0 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full border border-primary-300/60 bg-slate-900/90 text-primary-100 shadow-sm hover:bg-slate-800 md:flex"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  className="quote-next absolute right-0 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-primary-300/60 bg-slate-900/90 text-primary-100 shadow-sm hover:bg-slate-800 md:flex"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </>
+            )}
+
+            <Swiper
+              className="quote-swiper"
+              modules={[Navigation, Pagination, Autoplay]}
+              navigation={
+                quotes.length > 1
+                  ? {
+                      prevEl: ".quote-prev",
+                      nextEl: ".quote-next",
+                    }
+                  : undefined
+              }
+              pagination={{ clickable: true }}
+              loop={quotes.length > 1}
+              autoplay={
+                quotes.length > 1
+                  ? {
+                      delay: 5000,
+                      disableOnInteraction: false,
+                    }
+                  : undefined
+              }
+              spaceBetween={18}
+              slidesPerView={1}
+            >
+              {quotes.map((item) => (
+                <SwiperSlide key={item.id}>
+                  <div className="h-full rounded-3xl bg-slate-800/80 p-6 text-sm shadow-sm md:p-7">
+                    <p className="text-xs uppercase tracking-[0.18em] text-primary-200">
+                      {item.author || "Pemilik Nonade Florist"}
+                    </p>
+                    <p className="mt-3 text-base leading-relaxed text-slate-50">
+                      “{item.message}”
+                    </p>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </section>
+      )}
 
       {/* TESTIMONI PELANGGAN */}
       <section

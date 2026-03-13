@@ -15,6 +15,7 @@ import CategoryManagement from './pages/admin/CategoryManagement.jsx'
 import SubcategoryManagement from './pages/admin/SubcategoryManagement.jsx'
 import ProductManagement from './pages/admin/ProductManagement.jsx'
 import AdminTestimonials from './pages/admin/AdminTestimonials.jsx'
+import AdminQuotes from './pages/admin/AdminQuotes.jsx'
 import AdminSettings from './pages/admin/AdminSettings.jsx'
 import AdminBanners from './pages/admin/AdminBanners.jsx'
 import ProductDetail from './pages/ProductDetail.jsx'
@@ -47,6 +48,7 @@ function App() {
           <Route path="subcategories" element={<SubcategoryManagement />} />
           <Route path="products" element={<ProductManagement />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
+          <Route path="quotes" element={<AdminQuotes />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="banners" element={<AdminBanners />} />
         </Route>

@@ -6,6 +6,7 @@ import {
   Sprout,
   LogOut,
   Quote,
+  MessageCircle,
   Settings,
   Image,
 } from 'lucide-react'
@@ -17,6 +18,7 @@ const navItems = [
   { to: '/admin/subcategories', label: 'Sub Category', icon: Tags },
   { to: '/admin/products', label: 'Product', icon: Sprout },
   { to: '/admin/testimonials', label: 'Testimonial', icon: Quote },
+  { to: '/admin/quotes', label: 'Quotes', icon: MessageCircle },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
   { to: '/admin/banners', label: 'Banners', icon: Image },
 ]

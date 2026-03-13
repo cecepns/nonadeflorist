@@ -101,11 +101,39 @@ async function initDb() {
   `)
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS quotes (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      author VARCHAR(100) NULL,
+      message TEXT NOT NULL,
+      is_active TINYINT(1) DEFAULT 1,
+      sort_order INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  await pool.query(
+    `
+    INSERT INTO quotes (author, message, is_active, sort_order)
+    SELECT ?, ?, 1, 0
+    WHERE NOT EXISTS (SELECT 1 FROM quotes)
+  `,
+    [
+      'Pemilik Nonade Florist',
+      'Biasanya aku ngasih shay Thank u ucapan buat semua orang yg udah mampir ke web aku.',
+    ],
+  )
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS settings (
       id INT AUTO_INCREMENT PRIMARY KEY,
       setting_key VARCHAR(100) UNIQUE NOT NULL,
       setting_value VARCHAR(255) NOT NULL
     )
+  `)
+
+  await pool.query(`
+    ALTER TABLE settings
+    MODIFY setting_value VARCHAR(255) NOT NULL
   `)
 
   await pool.query(
@@ -130,6 +158,278 @@ async function initDb() {
     VALUES ('instagram_handle', ?)
   `,
     ['nonadeflorist.smdg'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('landing_logo_url', ?)
+  `,
+    [''],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_title', ?)
+  `,
+    ['Studio buket modern dengan sentuhan personal.'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_subtitle', ?)
+  `,
+    ['About Us'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_paragraph_1', ?)
+  `,
+    [
+      'Nonade Florist berfokus pada buket yang clean, airy, dan feminin. Kami mengutamakan pemilihan warna, tekstur, dan komposisi yang seimbang agar setiap rangkaian terasa hangat dan thoughtful.',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_paragraph_2', ?)
+  `,
+    [
+      'Setiap buket dibuat secara made-to-order untuk memastikan bunga selalu fresh dan tetap selaras dengan cerita yang ingin Anda sampaikan — mulai dari momen romantis, ucapan selamat, hingga gesture kecil penuh perhatian.',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_highlight_1_title', ?)
+  `,
+    ['Signature Style'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_highlight_1_desc', ?)
+  `,
+    ['Warna pastel lembut, wrapping minimalis, dan detail pita yang delicate.'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_highlight_2_title', ?)
+  `,
+    ['Custom Request'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('about_highlight_2_desc', ?)
+  `,
+    [
+      'Bisa menyesuaikan palette warna, ukuran buket, hingga kartu ucapan personal.',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_badge', ?)
+  `,
+    ['Nonade Florist'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_title', ?)
+  `,
+    ['Buket bunga kurasi'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_highlight', ?)
+  `,
+    ['untuk setiap momen manis.'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_description', ?)
+  `,
+    [
+      'Buket Bunga • Papan Bunga • Standing Flower Grand Opening • Wisuda • Wedding • Duka Cita • Flower Box • Hampers Unik • Dibuat dengan bunga segar & kualitas terbaik',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_badge', ?)
+  `,
+    ['Pilihan cepat'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_title', ?)
+  `,
+    ['Temukan buket sesuai momennya'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_1_badge', ?)
+  `,
+    ['Handmade & Custom'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_1_title', ?)
+  `,
+    ['Rangkaian sesuai cerita Anda'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_1_desc', ?)
+  `,
+    [
+      'Setiap rangkaian dibuat manual dengan detail & bisa request warna, tema, dan budget sesuai kebutuhan Anda.',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_2_badge', ?)
+  `,
+    ['Same Day Delivery Sumedang'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_2_title', ?)
+  `,
+    ['Kirim di hari yang sama'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_2_desc', ?)
+  `,
+    [
+      'Pesan hari ini, kirim hari ini. Layanan cepat untuk surprise, ucapan, dan kebutuhan mendadak.',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_3_badge', ?)
+  `,
+    ['Bunga Segar & Premium Quality'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_3_title', ?)
+  `,
+    ['Tampilan elegan & tahan lama'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_quick_3_desc', ?)
+  `,
+    [
+      'Menggunakan bunga fresh & material premium agar tampil elegan, rapi, dan tahan lebih lama.',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_badge', ?)
+  `,
+    ['Kenapa Nonade?'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_title', ?)
+  `,
+    ['Detail kecil yang membuat buket terasa lebih thoughtful.'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_1_title', ?)
+  `,
+    ['Konsultasi palette warna'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_1_desc', ?)
+  `,
+    ['Sesuaikan suasana acara dan preferensi penerima.'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_2_title', ?)
+  `,
+    ['Kartu ucapan handwritten'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_2_desc', ?)
+  `,
+    [
+      'Pesan pendek yang ditulis rapi menambah sentuhan personal.',
+    ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_3_title', ?)
+  `,
+    ['Packaging yang fotogenik'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_why_3_desc', ?)
+  `,
+    ['Setiap buket dirancang siap difoto tanpa perlu diatur ulang.'],
   )
 
   await pool.query(`
@@ -400,10 +700,72 @@ app.delete('/api/testimonials/:id', async (req, res) => {
   res.status(204).end()
 })
 
+app.get('/api/quotes', async (_req, res) => {
+  const [rows] = await pool.query(
+    'SELECT * FROM quotes ORDER BY sort_order ASC, created_at DESC',
+  )
+  res.json(rows)
+})
+
+app.post('/api/quotes', async (req, res) => {
+  const { author, message, is_active, sort_order } = req.body
+  const [result] = await pool.query(
+    `
+    INSERT INTO quotes (author, message, is_active, sort_order)
+    VALUES (?, ?, ?, ?)
+  `,
+    [author || null, message, is_active ? 1 : 0, sort_order || 0],
+  )
+  res.status(201).json({
+    id: result.insertId,
+    author,
+    message,
+    is_active: !!is_active,
+    sort_order: sort_order || 0,
+  })
+})
+
+app.put('/api/quotes/:id', async (req, res) => {
+  const { id } = req.params
+  const { author, message, is_active, sort_order } = req.body
+
+  await pool.query(
+    `
+    UPDATE quotes
+    SET author = ?, message = ?, is_active = ?, sort_order = ?
+    WHERE id = ?
+  `,
+    [author || null, message, is_active ? 1 : 0, sort_order || 0, id],
+  )
+
+  res.json({
+    id,
+    author,
+    message,
+    is_active: !!is_active,
+    sort_order: sort_order || 0,
+  })
+})
+
+app.delete('/api/quotes/:id', async (req, res) => {
+  const { id } = req.params
+  await pool.query('DELETE FROM quotes WHERE id = ?', [id])
+  res.status(204).end()
+})
+
 // PUBLIC Testimonials for homepage
 app.get('/api/public/testimonials', async (_req, res) => {
   const [rows] = await pool.query(
     `SELECT * FROM testimonials
+     WHERE is_active = 1
+     ORDER BY sort_order ASC, created_at DESC`,
+  )
+  res.json(rows)
+})
+
+app.get('/api/public/quotes', async (_req, res) => {
+  const [rows] = await pool.query(
+    `SELECT * FROM quotes
      WHERE is_active = 1
      ORDER BY sort_order ASC, created_at DESC`,
   )
@@ -520,8 +882,7 @@ app.put('/api/settings/:key', async (req, res) => {
 
 app.get('/api/public/settings', async (_req, res) => {
   const [rows] = await pool.query(
-    'SELECT setting_key, setting_value FROM settings WHERE setting_key IN (?, ?, ?)',
-    ['whatsapp_number', 'operational_hours', 'instagram_handle'],
+    'SELECT setting_key, setting_value FROM settings',
   )
 
   const getValue = (key, fallback) => {
@@ -535,11 +896,183 @@ app.get('/api/public/settings', async (_req, res) => {
     'Senin – Minggu, 09.00 – 20.00 WIB',
   )
   const instagramHandle = getValue('instagram_handle', 'nonadeflorist.smdg')
+  const landingLogoUrl = getValue('landing_logo_url', '')
+
+  const aboutTitle = getValue(
+    'about_title',
+    'Studio buket modern dengan sentuhan personal.',
+  )
+  const aboutSubtitle = getValue('about_subtitle', 'About Us')
+  const aboutParagraph1 = getValue(
+    'about_paragraph_1',
+    'Nonade Florist berfokus pada buket yang clean, airy, dan feminin. Kami mengutamakan pemilihan warna, tekstur, dan komposisi yang seimbang agar setiap rangkaian terasa hangat dan thoughtful.',
+  )
+  const aboutParagraph2 = getValue(
+    'about_paragraph_2',
+    'Setiap buket dibuat secara made-to-order untuk memastikan bunga selalu fresh dan tetap selaras dengan cerita yang ingin Anda sampaikan — mulai dari momen romantis, ucapan selamat, hingga gesture kecil penuh perhatian.',
+  )
+  const aboutHighlight1Title = getValue('about_highlight_1_title', 'Signature Style')
+  const aboutHighlight1Desc = getValue(
+    'about_highlight_1_desc',
+    'Warna pastel lembut, wrapping minimalis, dan detail pita yang delicate.',
+  )
+  const aboutHighlight2Title = getValue('about_highlight_2_title', 'Custom Request')
+  const aboutHighlight2Desc = getValue(
+    'about_highlight_2_desc',
+    'Bisa menyesuaikan palette warna, ukuran buket, hingga kartu ucapan personal.',
+  )
+
+  const homeHeroBadge = getValue('home_hero_badge', 'Nonade Florist')
+  const homeHeroTitle = getValue('home_hero_title', 'Buket bunga kurasi')
+  const homeHeroHighlight = getValue(
+    'home_hero_highlight',
+    'untuk setiap momen manis.',
+  )
+  const homeHeroDescription = getValue(
+    'home_hero_description',
+    'Buket Bunga • Papan Bunga • Standing Flower Grand Opening • Wisuda • Wedding • Duka Cita • Flower Box • Hampers Unik • Dibuat dengan bunga segar & kualitas terbaik',
+  )
+
+  const homeQuickBadge = getValue('home_quick_badge', 'Pilihan cepat')
+  const homeQuickTitle = getValue(
+    'home_quick_title',
+    'Temukan buket sesuai momennya',
+  )
+  const homeQuick1Badge = getValue('home_quick_1_badge', 'Handmade & Custom')
+  const homeQuick1Title = getValue(
+    'home_quick_1_title',
+    'Rangkaian sesuai cerita Anda',
+  )
+  const homeQuick1Desc = getValue(
+    'home_quick_1_desc',
+    'Setiap rangkaian dibuat manual dengan detail & bisa request warna, tema, dan budget sesuai kebutuhan Anda.',
+  )
+  const homeQuick2Badge = getValue(
+    'home_quick_2_badge',
+    'Same Day Delivery Sumedang',
+  )
+  const homeQuick2Title = getValue(
+    'home_quick_2_title',
+    'Kirim di hari yang sama',
+  )
+  const homeQuick2Desc = getValue(
+    'home_quick_2_desc',
+    'Pesan hari ini, kirim hari ini. Layanan cepat untuk surprise, ucapan, dan kebutuhan mendadak.',
+  )
+  const homeQuick3Badge = getValue(
+    'home_quick_3_badge',
+    'Bunga Segar & Premium Quality',
+  )
+  const homeQuick3Title = getValue(
+    'home_quick_3_title',
+    'Tampilan elegan & tahan lama',
+  )
+  const homeQuick3Desc = getValue(
+    'home_quick_3_desc',
+    'Menggunakan bunga fresh & material premium agar tampil elegan, rapi, dan tahan lebih lama.',
+  )
+
+  const homeWhyBadge = getValue('home_why_badge', 'Kenapa Nonade?')
+  const homeWhyTitle = getValue(
+    'home_why_title',
+    'Detail kecil yang membuat buket terasa lebih thoughtful.',
+  )
+  const homeWhy1Title = getValue(
+    'home_why_1_title',
+    'Konsultasi palette warna',
+  )
+  const homeWhy1Desc = getValue(
+    'home_why_1_desc',
+    'Sesuaikan suasana acara dan preferensi penerima.',
+  )
+  const homeWhy2Title = getValue(
+    'home_why_2_title',
+    'Kartu ucapan handwritten',
+  )
+  const homeWhy2Desc = getValue(
+    'home_why_2_desc',
+    'Pesan pendek yang ditulis rapi menambah sentuhan personal.',
+  )
+  const homeWhy3Title = getValue(
+    'home_why_3_title',
+    'Packaging yang fotogenik',
+  )
+  const homeWhy3Desc = getValue(
+    'home_why_3_desc',
+    'Setiap buket dirancang siap difoto tanpa perlu diatur ulang.',
+  )
 
   res.json({
     whatsapp_number: whatsapp,
     operational_hours: operationalHours,
     instagram_handle: instagramHandle,
+    landing_logo_url: landingLogoUrl,
+    about: {
+      subtitle: aboutSubtitle,
+      title: aboutTitle,
+      paragraph_1: aboutParagraph1,
+      paragraph_2: aboutParagraph2,
+      highlights: [
+        {
+          title: aboutHighlight1Title,
+          description: aboutHighlight1Desc,
+          variant: 'primary',
+        },
+        {
+          title: aboutHighlight2Title,
+          description: aboutHighlight2Desc,
+          variant: 'accent',
+        },
+      ],
+    },
+    home_hero: {
+      badge: homeHeroBadge,
+      title: homeHeroTitle,
+      highlight: homeHeroHighlight,
+      description: homeHeroDescription,
+    },
+    home_quick: {
+      badge: homeQuickBadge,
+      title: homeQuickTitle,
+      cards: [
+        {
+          badge: homeQuick1Badge,
+          title: homeQuick1Title,
+          description: homeQuick1Desc,
+          variant: 'primary',
+        },
+        {
+          badge: homeQuick2Badge,
+          title: homeQuick2Title,
+          description: homeQuick2Desc,
+          variant: 'neutral',
+        },
+        {
+          badge: homeQuick3Badge,
+          title: homeQuick3Title,
+          description: homeQuick3Desc,
+          variant: 'accent',
+        },
+      ],
+    },
+    home_why: {
+      badge: homeWhyBadge,
+      title: homeWhyTitle,
+      bullets: [
+        {
+          title: homeWhy1Title,
+          description: homeWhy1Desc,
+        },
+        {
+          title: homeWhy2Title,
+          description: homeWhy2Desc,
+        },
+        {
+          title: homeWhy3Title,
+          description: homeWhy3Desc,
+        },
+      ],
+    },
   })
 })
 
