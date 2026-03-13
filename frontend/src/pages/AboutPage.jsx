@@ -25,6 +25,7 @@ function AboutPage() {
       },
     ],
   });
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     axios
@@ -40,6 +41,17 @@ function AboutPage() {
       .catch(() => {
         // keep defaults
       });
+
+    axios
+      .get(`${API_URL}/api/public/about-images`)
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setImages(res.data);
+        }
+      })
+      .catch(() => {
+        setImages([]);
+      });
   }, []);
 
   const getHighlightClasses = (variant) => {
@@ -50,7 +62,7 @@ function AboutPage() {
   };
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+    <section className="mx-auto max-w-6xl px-4 py-10 md:py-14 space-y-10">
       <div
         className="grid gap-8 md:grid-cols-[1.1fr,0.9fr]"
         data-aos="fade-up"
@@ -80,6 +92,32 @@ function AboutPage() {
           ))}
         </div>
       </div>
+
+      {images.length > 0 && (
+        <div
+          className="space-y-3"
+          data-aos="fade-up"
+          data-aos-delay="80"
+        >
+          <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
+            Galeri Studio
+          </h3>
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+            {images.map((img, index) => (
+              <div
+                key={img.image_url + index}
+                className="overflow-hidden rounded-2xl border border-slate-100 bg-slate-50"
+              >
+                <img
+                  src={`${API_URL}${img.image_url}`}
+                  alt=""
+                  className="h-48 w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

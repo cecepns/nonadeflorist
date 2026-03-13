@@ -100,6 +100,15 @@ async function initDb() {
   `)
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS about_images (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      image_url VARCHAR(255) NOT NULL,
+      sort_order INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS testimonials (
       id INT AUTO_INCREMENT PRIMARY KEY,
       customer_name VARCHAR(100) NOT NULL,
@@ -1001,6 +1010,60 @@ app.get('/api/banners', async (_req, res) => {
   res.json(rows)
 })
 
+// ADMIN About Images
+app.get('/api/about-images', async (_req, res) => {
+  const [rows] = await pool.query(
+    'SELECT * FROM about_images ORDER BY sort_order ASC, created_at DESC',
+  )
+  res.json(rows)
+})
+
+app.post(
+  '/api/about-images',
+  upload.single('image'),
+  async (req, res) => {
+    const { sort_order } = req.body
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Gambar wajib diupload' })
+    }
+
+    const imageUrl = `/uploads-nonadeflorist/${req.file.filename}`
+    const order = Number.isNaN(Number(sort_order)) ? 0 : Number(sort_order)
+
+    const [result] = await pool.query(
+      `INSERT INTO about_images (image_url, sort_order)
+       VALUES (?, ?)`,
+      [imageUrl, order],
+    )
+
+    res.status(201).json({
+      id: result.insertId,
+      image_url: imageUrl,
+      sort_order: order,
+    })
+  },
+)
+
+app.delete('/api/about-images/:id', async (req, res) => {
+  const { id } = req.params
+
+  const [rows] = await pool.query(
+    'SELECT image_url FROM about_images WHERE id = ?',
+    [id],
+  )
+  if (!rows.length) {
+    return res.status(404).json({ message: 'Gambar tidak ditemukan' })
+  }
+
+  const imageUrl = rows[0].image_url
+
+  await pool.query('DELETE FROM about_images WHERE id = ?', [id])
+  deleteImageIfExists(imageUrl)
+
+  res.status(204).end()
+})
+
 app.post(
   '/api/banners',
   upload.single('image'),
@@ -1070,6 +1133,14 @@ app.get('/api/public/banners', async (_req, res) => {
     `SELECT * FROM banners
      WHERE is_active = 1
      ORDER BY sort_order ASC, created_at DESC`,
+  )
+  res.json(rows)
+})
+
+// PUBLIC about images
+app.get('/api/public/about-images', async (_req, res) => {
+  const [rows] = await pool.query(
+    'SELECT image_url FROM about_images ORDER BY sort_order ASC, created_at DESC',
   )
   res.json(rows)
 })

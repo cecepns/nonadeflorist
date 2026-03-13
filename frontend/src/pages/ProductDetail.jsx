@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { ChevronLeft } from 'lucide-react'
 import { API_URL } from '../utils/apiConfig'
 
 function ProductDetail() {
@@ -83,9 +84,10 @@ function ProductDetail() {
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="mb-4 text-xs font-medium text-slate-500 hover:text-primary-600"
+        className="mb-4 inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-primary-600"
       >
-        ← Kembali
+        <ChevronLeft className="h-3 w-3" />
+        <span>Kembali</span>
       </button>
 
       <div className="grid gap-8 md:grid-cols-[1.1fr,0.9fr]">
