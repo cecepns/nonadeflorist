@@ -384,7 +384,7 @@ function HomePage() {
       {/* QUOTE PEMILIK */}
       {quotes.length > 0 && (
         <section
-          className="mx-auto max-w-6xl px-4 mb-10 rounded-3xl bg-primary-50/60 border border-primary-100 px-4 py-8 text-slate-900 md:px-8 md:py-10 overflow-x-hidden"
+          className="mx-auto max-w-6xl px-4 mb-10 rounded-3xl bg-primary-50/60 border border-primary-100 px-4 py-8 text-slate-900 md:px-8 md:py-10"
           data-aos="fade-up"
         >
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
