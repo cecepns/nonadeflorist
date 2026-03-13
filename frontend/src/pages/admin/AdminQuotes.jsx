@@ -6,9 +6,8 @@ const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
 function AdminQuotes() {
   const [items, setItems] = useState([])
   const [form, setForm] = useState({
-    author: 'Pemilik Nonade Florist',
-    message:
-      'Biasanya aku ngasih shay Thank u ucapan buat semua orang yg udah mampir ke web aku',
+    author: '',
+    message: '',
     is_active: true,
     sort_order: 0,
   })
@@ -28,9 +27,8 @@ function AdminQuotes() {
 
   const resetForm = () => {
     setForm({
-      author: 'Pemilik Nonade Florist',
-      message:
-        'Biasanya aku ngasih shay Thank u ucapan buat semua orang yg udah mampir ke web aku',
+      author: '',
+      message: '',
       is_active: true,
       sort_order: 0,
     })
