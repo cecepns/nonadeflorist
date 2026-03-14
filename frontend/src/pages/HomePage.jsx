@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { API_URL } from "../utils/apiConfig";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "../assets/home-image.jpg";
 import whyChooseUsImage from "../assets/why-choose-us.jpg";
@@ -332,9 +332,10 @@ function HomePage() {
               <div className="mt-3">
                 <Link
                   to={`/products/${product.id}`}
-                  className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-xs font-medium text-slate-700 hover:border-primary-200 hover:text-primary-600"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary-500 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary-600"
                 >
-                  Lihat selengkapnya
+                  <ShoppingBag className="h-3.5 w-3.5" />
+                  <span>Lihat selengkapnya</span>
                 </Link>
               </div>
             </div>
