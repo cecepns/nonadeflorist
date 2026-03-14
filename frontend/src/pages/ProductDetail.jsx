@@ -102,7 +102,7 @@ function ProductDetail() {
             )}
           </div>
           {galleryImages.length > 1 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            <div className="mt-3 flex flex-wrap juustify-center items-center gap-2 overflow-x-auto pb-1">
               {galleryImages.map((img, index) => (
                 <button
                   key={img + index}
