@@ -111,7 +111,7 @@ function AboutPage() {
                 <img
                   src={`${API_URL}${img.image_url}`}
                   alt=""
-                  className="h-48 w-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </div>
             ))}
