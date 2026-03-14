@@ -9,6 +9,7 @@ import {
   MessageCircle,
   Settings,
   Image,
+  Images,
 } from 'lucide-react'
 import { useEffect } from 'react'
 
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/admin/quotes', label: 'Quotes', icon: MessageCircle },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
   { to: '/admin/banners', label: 'Banners', icon: Image },
+  { to: '/admin/about-images', label: 'About Images', icon: Images },
 ]
 
 function AdminLayout() {

@@ -18,6 +18,7 @@ import AdminTestimonials from './pages/admin/AdminTestimonials.jsx'
 import AdminQuotes from './pages/admin/AdminQuotes.jsx'
 import AdminSettings from './pages/admin/AdminSettings.jsx'
 import AdminBanners from './pages/admin/AdminBanners.jsx'
+import AdminAboutImages from './pages/admin/AdminAboutImages.jsx'
 import ProductDetail from './pages/ProductDetail.jsx'
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
           <Route path="quotes" element={<AdminQuotes />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="banners" element={<AdminBanners />} />
+          <Route path="about-images" element={<AdminAboutImages />} />
         </Route>
       </Routes>
     </BrowserRouter>
