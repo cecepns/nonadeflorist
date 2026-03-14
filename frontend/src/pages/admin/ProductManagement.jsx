@@ -50,18 +50,24 @@ function ProductManagement() {
       })
     }
 
-    if (editingId) {
-      const current = items.find((it) => it.id === editingId)
-      if (current?.image_url && imageFiles.length === 0) {
-        data.append('image_url', current.image_url)
+    try {
+      if (editingId) {
+        const current = items.find((it) => it.id === editingId)
+        if (current?.image_url && imageFiles.length === 0) {
+          data.append('image_url', current.image_url)
+        }
+        await axios.put(`${API_URL}/api/products/${editingId}`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+      } else {
+        await axios.post(`${API_URL}/api/products`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
       }
-      await axios.put(`${API_URL}/api/products/${editingId}`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-    } else {
-      await axios.post(`${API_URL}/api/products`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Terjadi kesalahan.'
+      alert(`Gagal menyimpan product: ${msg}`)
+      return
     }
 
     setForm({

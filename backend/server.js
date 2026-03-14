@@ -691,7 +691,13 @@ app.put(
   )
 
   if (imageFiles.length > 0 && currentImage && currentImage !== imageUrl) {
-    deleteImageIfExists(currentImage)
+    const [refRows] = await pool.query(
+      'SELECT 1 FROM product_images WHERE product_id = ? AND image_url = ? LIMIT 1',
+      [id, currentImage],
+    )
+    if (refRows.length === 0) {
+      deleteImageIfExists(currentImage)
+    }
   }
 
   if (imageFiles.length > 0) {
