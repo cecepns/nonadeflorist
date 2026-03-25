@@ -228,7 +228,6 @@ function LandingLayout() {
                   <div className="flex items-start gap-3">
                     <Phone className="mt-0.5 h-4 w-4 text-primary-600" />
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <span className="font-medium text-slate-600">CP:</span>
                       <a
                         href="tel:0881023469000"
                         className="font-medium hover:text-primary-700"
