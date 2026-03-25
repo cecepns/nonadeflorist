@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Leaf, ShoppingBag, Menu, X, MessageCircle } from 'lucide-react'
+import {
+  Leaf,
+  ShoppingBag,
+  Menu,
+  X,
+  MessageCircle,
+  Phone,
+  Mail,
+  MapPin,
+} from 'lucide-react'
 import axios from 'axios'
 import { API_URL } from '../utils/apiConfig'
 
@@ -146,7 +155,7 @@ function LandingLayout() {
               className="hidden items-center gap-1.5 rounded-full bg-primary-500 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary-600 md:inline-flex md:text-sm"
             >
               <ShoppingBag className="h-4 w-4" />
-              <span>Lihat Koleksi</span>
+              <span>Catalog</span>
             </Link>
             <button
               type="button"
@@ -192,7 +201,7 @@ function LandingLayout() {
                   className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-primary-500 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-primary-600"
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  <span>Lihat Koleksi</span>
+                  <span>Catalog</span>
                 </Link>
               </div>
             </div>
@@ -204,12 +213,72 @@ function LandingLayout() {
         <Outlet />
       </main>
 
+      <section className="border-t bg-primary-50/40">
+        <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
+          <div className="rounded-3xl border border-primary-100 bg-white/70 p-6 shadow-sm md:p-8">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary-500">
+                    Contact
+                  </p>
+                </div>
+
+                <div className="space-y-3 text-sm text-slate-700">
+                  <div className="flex items-start gap-3">
+                    <Phone className="mt-0.5 h-4 w-4 text-primary-600" />
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <span className="font-medium text-slate-600">CP:</span>
+                      <a
+                        href="tel:0881023469000"
+                        className="font-medium hover:text-primary-700"
+                      >
+                        0881-0234-69000
+                      </a>
+                      <span className="text-slate-300">/</span>
+                      <a
+                        href="tel:082119955657"
+                        className="font-medium hover:text-primary-700"
+                      >
+                        0821-1995-5657
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <Mail className="mt-0.5 h-4 w-4 text-primary-600" />
+                    <a
+                      href="mailto:Nonfloristsumedang@gmail.com"
+                      className="break-all font-medium hover:text-primary-700"
+                    >
+                      Nonfloristsumedang@gmail.com
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 md:border-l md:border-primary-100 md:pl-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary-500">
+                    Address
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3 text-sm text-slate-700">
+                  <MapPin className="mt-0.5 h-4 w-4 text-primary-600" />
+                  <span className="leading-relaxed">
+                    Jl Angrek No 147A kecamatan Sumedang Utara
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <footer className="border-t bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} Nonade Florist. All rights reserved.</p>
-          <p className="text-[11px]">
-            crafted with care — custom bouquets for every story.
-          </p>
         </div>
       </footer>
 
