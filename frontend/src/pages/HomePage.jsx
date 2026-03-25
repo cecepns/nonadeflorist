@@ -24,6 +24,11 @@ function HomePage() {
     highlight: "untuk setiap momen manis.",
     description:
       "Buket Bunga • Papan Bunga • Standing Flower Grand Opening • Wisuda • Wedding • Duka Cita • Flower Box • Hampers Unik • Dibuat dengan bunga segar & kualitas terbaik",
+    cta_1: { text: "Lihat koleksi buket", link: "/products" },
+    cta_2: {
+      text: "Konsultasi custom order",
+      link: "/contact",
+    },
   });
   const [quickSection, setQuickSection] = useState({
     badge: "Pilihan cepat",
@@ -220,19 +225,21 @@ function HomePage() {
               type="button"
               className="rounded-full bg-primary-500 px-5 py-2 font-medium text-white shadow-sm hover:bg-primary-600"
               onClick={() => {
-                window.location.href = "/products";
+                const link = heroContent?.cta_1?.link || "/products";
+                window.location.href = link;
               }}
             >
-              Lihat koleksi buket
+              {heroContent?.cta_1?.text || "Lihat koleksi buket"}
             </button>
             <button
               type="button"
               className="rounded-full border border-slate-200 px-5 py-2 font-medium text-slate-700 hover:border-primary-200 hover:text-primary-600"
               onClick={() => {
-                window.location.href = "/contact";
+                const link = heroContent?.cta_2?.link || "/contact";
+                window.location.href = link;
               }}
             >
-              Konsultasi custom order
+              {heroContent?.cta_2?.text || "Konsultasi custom order"}
             </button>
           </div>
         </div>

@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
 const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
+const DEBOUNCE_MS = 1500
 
 function ProductManagement() {
   const [categories, setCategories] = useState([])
   const [subcategories, setSubcategories] = useState([])
   const [items, setItems] = useState([])
+  const [searchInput, setSearchInput] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState('sort_order_asc')
   const [form, setForm] = useState({
     category_id: '',
     subcategory_id: '',
@@ -16,23 +20,41 @@ function ProductManagement() {
     price: '',
     description: '',
     is_active: true,
+    sort_order: 0,
   })
   const [imageFiles, setImageFiles] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [editingProduct, setEditingProduct] = useState(null)
   const [editingImages, setEditingImages] = useState([])
 
-  const fetchAll = () => {
+  const fetchProducts = useCallback(() => {
+    const params = new URLSearchParams()
+    if (searchTerm) params.set('search', searchTerm)
+    params.set('sort', sortBy)
+    axios
+      .get(`${API_URL}/api/products?${params.toString()}`)
+      .then((res) => setItems(res.data))
+  }, [searchTerm, sortBy])
+
+  const fetchMeta = useCallback(() => {
     axios.get(`${API_URL}/api/categories`).then((res) => setCategories(res.data))
     axios
       .get(`${API_URL}/api/subcategories`)
       .then((res) => setSubcategories(res.data))
-    axios.get(`${API_URL}/api/products`).then((res) => setItems(res.data))
-  }
+  }, [])
 
   useEffect(() => {
-    fetchAll()
-  }, [])
+    fetchMeta()
+  }, [fetchMeta])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  useEffect(() => {
+    const t = setTimeout(() => setSearchTerm(searchInput), DEBOUNCE_MS)
+    return () => clearTimeout(t)
+  }, [searchInput])
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -77,12 +99,13 @@ function ProductManagement() {
       price: '',
       description: '',
       is_active: true,
+      sort_order: 0,
     })
     setImageFiles([])
     setEditingId(null)
     setEditingProduct(null)
     setEditingImages([])
-    fetchAll()
+    fetchProducts()
   }
 
   const handleEdit = (item) => {
@@ -98,6 +121,7 @@ function ProductManagement() {
         price: String(data.price),
         description: data.description || '',
         is_active: !!data.is_active,
+        sort_order: data.sort_order ?? 0,
       })
       setImageFiles([])
     })
@@ -115,12 +139,13 @@ function ProductManagement() {
         price: '',
         description: '',
         is_active: true,
+        sort_order: 0,
       })
       setImageFiles([])
       setEditingProduct(null)
       setEditingImages([])
     }
-    fetchAll()
+    fetchProducts()
   }
 
   return (
@@ -177,6 +202,20 @@ function ProductManagement() {
             <input
               value={form.name}
               onChange={(e) => handleChange('name', e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">
+              No. urut
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={form.sort_order}
+              onChange={(e) =>
+                handleChange('sort_order', Number(e.target.value) || 0)
+              }
               className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2"
             />
           </div>
@@ -328,10 +367,31 @@ function ProductManagement() {
         </div>
       </form>
 
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <input
+          type="text"
+          placeholder="Cari product (nama, kategori)..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 sm:max-w-xs"
+        />
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2"
+        >
+          <option value="sort_order_asc">Urutkan: No. urut naik</option>
+          <option value="sort_order_desc">Urutkan: No. urut turun</option>
+          <option value="id_desc">Urutkan: Terbaru</option>
+          <option value="id_asc">Urutkan: Terlama</option>
+        </select>
+      </div>
+
       <div className="rounded-2xl border bg-white/90 p-4 text-xs md:text-sm">
         <table className="w-full border-separate border-spacing-y-1">
           <thead className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
             <tr>
+              <th className="pb-2 text-left">No.</th>
               <th className="pb-2 text-left">Gambar</th>
               <th className="pb-2 text-left">Nama</th>
               <th className="pb-2 text-left">Kategori</th>
@@ -341,9 +401,12 @@ function ProductManagement() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {items.map((item, idx) => (
               <tr key={item.id} className="rounded-xl bg-slate-50">
-                <td className="rounded-l-xl px-2 py-2">
+                <td className="rounded-l-xl px-2 py-2 text-slate-500">
+                  {item.sort_order ?? idx + 1}
+                </td>
+                <td className="px-2 py-2">
                   {item.image_url ? (
                     <img
                       src={`${API_URL}${item.image_url}`}
@@ -393,7 +456,7 @@ function ProductManagement() {
             ))}
             {items.length === 0 && (
               <tr>
-                <td className="py-2 text-slate-500" colSpan={4}>
+                <td className="py-2 text-slate-500" colSpan={6}>
                   Belum ada product.
                 </td>
               </tr>

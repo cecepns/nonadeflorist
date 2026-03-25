@@ -88,6 +88,14 @@ async function initDb() {
     )
   `)
 
+  try {
+    await pool.query(
+      'ALTER TABLE products ADD COLUMN sort_order INT NOT NULL DEFAULT 0',
+    )
+  } catch (e) {
+    if (e.code !== 'ER_DUP_FIELDNAME') throw e
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS product_images (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -306,6 +314,38 @@ async function initDb() {
     [
       'Buket Bunga • Papan Bunga • Standing Flower Grand Opening • Wisuda • Wedding • Duka Cita • Flower Box • Hampers Unik • Dibuat dengan bunga segar & kualitas terbaik',
     ],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_cta_1_text', ?)
+  `,
+    ['Lihat koleksi buket'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_cta_1_link', ?)
+  `,
+    ['/products'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_cta_2_text', ?)
+  `,
+    ['Konsultasi custom order'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('home_hero_cta_2_link', ?)
+  `,
+    ['/contact'],
   )
 
   await pool.query(
@@ -557,13 +597,29 @@ app.delete('/api/subcategories/:id', async (req, res) => {
   res.status(204).end()
 })
 
-app.get('/api/products', async (_req, res) => {
+app.get('/api/products', async (req, res) => {
+  const { search = '', sort = 'sort_order_asc' } = req.query
+  const searchTerm = String(search).trim()
+  const searchCondition = searchTerm
+    ? `AND (p.name LIKE ? OR c.name LIKE ? OR s.name LIKE ?)`
+    : ''
+  const searchParam = searchTerm
+    ? [`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`]
+    : []
+
+  let orderBy = 'ORDER BY p.sort_order ASC, p.id ASC'
+  if (sort === 'sort_order_desc')
+    orderBy = 'ORDER BY p.sort_order DESC, p.id DESC'
+  else if (sort === 'id_asc') orderBy = 'ORDER BY p.id ASC'
+  else if (sort === 'id_desc') orderBy = 'ORDER BY p.id DESC'
+
   const [rows] = await pool.query(
     `SELECT p.*, c.name AS category_name, s.name AS subcategory_name
      FROM products p
      JOIN categories c ON c.id = p.category_id
      LEFT JOIN subcategories s ON s.id = p.subcategory_id
-     ORDER BY p.id DESC`,
+     WHERE 1=1 ${searchCondition} ${orderBy}`,
+    searchParam,
   )
   res.json(rows)
 })
@@ -599,8 +655,15 @@ app.post(
     { name: 'images', maxCount: 8 },
   ]),
   async (req, res) => {
-    const { category_id, subcategory_id, name, price, description, is_active } =
-      req.body
+    const {
+      category_id,
+      subcategory_id,
+      name,
+      price,
+      description,
+      is_active,
+      sort_order = 0,
+    } = req.body
     const imageFiles = [
       ...(req.files?.image || []),
       ...(req.files?.images || []),
@@ -610,11 +673,12 @@ app.post(
       imageFiles.length > 0
         ? `/uploads-nonadeflorist/${imageFiles[0].filename}`
         : null
+    const order = Number.isNaN(Number(sort_order)) ? 0 : Number(sort_order)
 
     const [result] = await pool.query(
       `INSERT INTO products
-       (category_id, subcategory_id, name, price, image_url, description, is_active)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (category_id, subcategory_id, name, price, image_url, description, is_active, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         category_id,
         subcategory_id || null,
@@ -623,6 +687,7 @@ app.post(
         mainImageUrl,
         description,
         is_active ? 1 : 0,
+        order,
       ],
     )
 
@@ -655,8 +720,19 @@ app.put(
   ]),
   async (req, res) => {
     const { id } = req.params
-    const { category_id, subcategory_id, name, price, description, is_active } =
-      req.body
+    const {
+      category_id,
+      subcategory_id,
+      name,
+      price,
+      description,
+      is_active,
+      sort_order,
+    } = req.body
+    const order =
+      sort_order !== undefined && !Number.isNaN(Number(sort_order))
+        ? Number(sort_order)
+        : null
 
   const [rows] = await pool.query(
     'SELECT image_url FROM products WHERE id = ?',
@@ -674,20 +750,36 @@ app.put(
     imageUrl = `/uploads-nonadeflorist/${imageFiles[0].filename}`
   }
 
+  const updateFields =
+    order !== null
+      ? `category_id=?, subcategory_id=?, name=?, price=?, image_url=?, description=?, is_active=?, sort_order=?`
+      : `category_id=?, subcategory_id=?, name=?, price=?, image_url=?, description=?, is_active=?`
+  const updateValues =
+    order !== null
+      ? [
+          category_id,
+          subcategory_id || null,
+          name,
+          price,
+          imageUrl,
+          description,
+          is_active ? 1 : 0,
+          order,
+          id,
+        ]
+      : [
+          category_id,
+          subcategory_id || null,
+          name,
+          price,
+          imageUrl,
+          description,
+          is_active ? 1 : 0,
+          id,
+        ]
   await pool.query(
-    `UPDATE products
-     SET category_id=?, subcategory_id=?, name=?, price=?, image_url=?, description=?, is_active=?
-     WHERE id=?`,
-    [
-      category_id,
-      subcategory_id || null,
-      name,
-      price,
-      imageUrl,
-      description,
-      is_active ? 1 : 0,
-      id,
-    ],
+    `UPDATE products SET ${updateFields} WHERE id=?`,
+    updateValues,
   )
 
   if (imageFiles.length > 0 && currentImage && currentImage !== imageUrl) {
@@ -850,14 +942,24 @@ app.delete('/api/products/:id/images/:imageId', async (req, res) => {
   })
 })
 
-app.get('/api/public/products', async (_req, res) => {
+app.get('/api/public/products', async (req, res) => {
+  const { search = '' } = req.query
+  const searchTerm = String(search).trim()
+  const searchCondition = searchTerm
+    ? `AND (p.name LIKE ? OR c.name LIKE ? OR s.name LIKE ?)`
+    : ''
+  const searchParam = searchTerm
+    ? [`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`]
+    : []
+
   const [rows] = await pool.query(
     `SELECT p.*, c.name AS category_name, s.name AS subcategory_name
      FROM products p
      JOIN categories c ON c.id = p.category_id
      LEFT JOIN subcategories s ON s.id = p.subcategory_id
-     WHERE p.is_active = 1
-     ORDER BY p.id DESC`,
+     WHERE p.is_active = 1 ${searchCondition}
+     ORDER BY COALESCE(p.sort_order, 0) ASC, p.id ASC`,
+    searchParam,
   )
   res.json(rows)
 })
@@ -1348,6 +1450,23 @@ app.get('/api/public/settings', async (_req, res) => {
     'Buket Bunga • Papan Bunga • Standing Flower Grand Opening • Wisuda • Wedding • Duka Cita • Flower Box • Hampers Unik • Dibuat dengan bunga segar & kualitas terbaik',
   )
 
+  const homeHeroCta1Text = getValue(
+    'home_hero_cta_1_text',
+    'Lihat koleksi buket',
+  )
+  const homeHeroCta1Link = getValue(
+    'home_hero_cta_1_link',
+    '/products',
+  )
+  const homeHeroCta2Text = getValue(
+    'home_hero_cta_2_text',
+    'Konsultasi custom order',
+  )
+  const homeHeroCta2Link = getValue(
+    'home_hero_cta_2_link',
+    '/contact',
+  )
+
   const homeQuickBadge = getValue('home_quick_badge', 'Pilihan cepat')
   const homeQuickTitle = getValue(
     'home_quick_title',
@@ -1446,6 +1565,14 @@ app.get('/api/public/settings', async (_req, res) => {
       highlight: homeHeroHighlight,
       description: homeHeroDescription,
       image_url: homeHeroImageUrl,
+      cta_1: {
+        text: homeHeroCta1Text,
+        link: homeHeroCta1Link,
+      },
+      cta_2: {
+        text: homeHeroCta2Text,
+        link: homeHeroCta2Link,
+      },
     },
     home_quick: {
       badge: homeQuickBadge,

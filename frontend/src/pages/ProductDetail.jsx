@@ -13,8 +13,6 @@ function ProductDetail() {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
 
   useEffect(() => {
-    setLoading(true)
-
     Promise.all([
       axios.get(`${API_URL}/api/public/products/${id}`),
       axios.get(`${API_URL}/api/public/settings`),

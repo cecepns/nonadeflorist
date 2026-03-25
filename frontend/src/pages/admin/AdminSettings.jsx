@@ -20,6 +20,10 @@ function AdminSettings() {
   const [homeHeroTitle, setHomeHeroTitle] = useState('')
   const [homeHeroHighlight, setHomeHeroHighlight] = useState('')
   const [homeHeroDescription, setHomeHeroDescription] = useState('')
+  const [homeHeroCta1Text, setHomeHeroCta1Text] = useState('')
+  const [homeHeroCta1Link, setHomeHeroCta1Link] = useState('')
+  const [homeHeroCta2Text, setHomeHeroCta2Text] = useState('')
+  const [homeHeroCta2Link, setHomeHeroCta2Link] = useState('')
   const [homeQuickBadge, setHomeQuickBadge] = useState('')
   const [homeQuickTitle, setHomeQuickTitle] = useState('')
   const [homeQuick1Badge, setHomeQuick1Badge] = useState('')
@@ -69,6 +73,16 @@ function AdminSettings() {
         setHomeHeroTitle(getValue('home_hero_title'))
         setHomeHeroHighlight(getValue('home_hero_highlight'))
         setHomeHeroDescription(getValue('home_hero_description'))
+        setHomeHeroCta1Text(
+          getValue('home_hero_cta_1_text') || 'Lihat koleksi buket',
+        )
+        setHomeHeroCta1Link(getValue('home_hero_cta_1_link') || '/products')
+        setHomeHeroCta2Text(
+          getValue('home_hero_cta_2_text') || 'Konsultasi custom order',
+        )
+        setHomeHeroCta2Link(
+          getValue('home_hero_cta_2_link') || '/contact',
+        )
         setHomeQuickBadge(getValue('home_quick_badge'))
         setHomeQuickTitle(getValue('home_quick_title'))
         setHomeQuick1Badge(getValue('home_quick_1_badge'))
@@ -150,6 +164,18 @@ function AdminSettings() {
         }),
         axios.put(`${API_URL}/api/settings/home_hero_description`, {
           value: homeHeroDescription,
+        }),
+        axios.put(`${API_URL}/api/settings/home_hero_cta_1_text`, {
+          value: homeHeroCta1Text,
+        }),
+        axios.put(`${API_URL}/api/settings/home_hero_cta_1_link`, {
+          value: homeHeroCta1Link,
+        }),
+        axios.put(`${API_URL}/api/settings/home_hero_cta_2_text`, {
+          value: homeHeroCta2Text,
+        }),
+        axios.put(`${API_URL}/api/settings/home_hero_cta_2_link`, {
+          value: homeHeroCta2Link,
         }),
         axios.put(`${API_URL}/api/settings/home_quick_badge`, {
           value: homeQuickBadge,
@@ -459,6 +485,59 @@ function AdminSettings() {
               disabled={loading}
               className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
             />
+          </div>
+          <div className="pt-1">
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+              CTA Hero (Tombol)
+            </label>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">
+                  Tombol 1 - teks
+                </label>
+                <input
+                  value={homeHeroCta1Text}
+                  onChange={(e) => setHomeHeroCta1Text(e.target.value)}
+                  disabled={loading}
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">
+                  Tombol 1 - link
+                </label>
+                <input
+                  value={homeHeroCta1Link}
+                  onChange={(e) => setHomeHeroCta1Link(e.target.value)}
+                  disabled={loading}
+                  placeholder="/products"
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">
+                  Tombol 2 - teks
+                </label>
+                <input
+                  value={homeHeroCta2Text}
+                  onChange={(e) => setHomeHeroCta2Text(e.target.value)}
+                  disabled={loading}
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">
+                  Tombol 2 - link
+                </label>
+                <input
+                  value={homeHeroCta2Link}
+                  onChange={(e) => setHomeHeroCta2Link(e.target.value)}
+                  disabled={loading}
+                  placeholder="/contact"
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+                />
+              </div>
+            </div>
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-slate-600">
