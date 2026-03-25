@@ -223,7 +223,7 @@ function HomePage() {
           <div className="mt-6 flex flex-wrap items-center gap-3 text-xs md:text-sm">
             <button
               type="button"
-              className="rounded-full bg-primary-500 px-5 py-2 font-bold md:text-lg text-white shadow-sm hover:bg-primary-600"
+              className="rounded-full bg-primary-500 px-5 py-2 font-bold text-lg text-white shadow-sm hover:bg-primary-600"
               onClick={() => {
                 const link = heroContent?.cta_1?.link || "/products";
                 window.location.href = link;
@@ -233,7 +233,7 @@ function HomePage() {
             </button>
             <button
               type="button"
-              className="rounded-full border border-slate-200 px-5 py-2 font-bold md:text-lg text-slate-700 hover:border-primary-200 hover:text-primary-600"
+              className="rounded-full bg-[#25D366] px-5 py-2 font-bold text-white shadow-sm hover:bg-[#1ebe57] text-lg"
               onClick={() => {
                 const link = heroContent?.cta_2?.link || "/contact";
                 window.location.href = link;
