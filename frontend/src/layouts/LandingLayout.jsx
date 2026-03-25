@@ -215,7 +215,7 @@ function LandingLayout() {
 
       <section className="border-t bg-primary-50/40">
         <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
-          <div className="rounded-3xl border border-primary-100 bg-white/70 p-6 shadow-sm md:p-8">
+          <div className="rounded-3xl border border-primary-100 bg-primary-50/80 p-6 shadow-sm md:p-8">
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-4">
                 <div>
