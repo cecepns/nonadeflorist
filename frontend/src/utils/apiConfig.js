@@ -1,1 +1,1 @@
-export const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
+export const API_URL = 'https://api.kingcreativestudio.my.id/nonadeflorist'

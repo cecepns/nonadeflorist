@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
+const API_URL = 'https://api.kingcreativestudio.my.id/nonadeflorist'
 
 function AdminTestimonials() {
   const [items, setItems] = useState([])

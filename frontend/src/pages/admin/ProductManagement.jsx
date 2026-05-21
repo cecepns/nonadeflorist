@@ -3,7 +3,7 @@ import axios from 'axios'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
-const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
+const API_URL = 'https://api.kingcreativestudio.my.id/nonadeflorist'
 const DEBOUNCE_MS = 1500
 
 function ProductManagement() {

@@ -40,6 +40,14 @@ function LandingLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [logoUrl, setLogoUrl] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [landingContact, setLandingContact] = useState({
+    title: 'Contact',
+    phone_1: '0881-0234-69000',
+    phone_2: '0821-1995-5657',
+    email: 'Nonfloristsumedang@gmail.com',
+    address_title: 'Address',
+    address: 'Jl Angrek No 147A kecamatan Sumedang Utara',
+  })
 
   const isActive = (path) =>
     location.pathname === path
@@ -55,6 +63,9 @@ function LandingLayout() {
         }
         if (res.data?.whatsapp_number) {
           setWhatsappNumber(res.data.whatsapp_number)
+        }
+        if (res.data?.landing_contact) {
+          setLandingContact((prev) => ({ ...prev, ...res.data.landing_contact }))
         }
       })
       .catch(() => {
@@ -220,7 +231,7 @@ function LandingLayout() {
               <div className="space-y-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary-500">
-                    Contact
+                    {landingContact?.title || 'Contact'}
                   </p>
                 </div>
 
@@ -229,28 +240,32 @@ function LandingLayout() {
                     <Phone className="mt-0.5 h-4 w-4 text-primary-600" />
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                       <a
-                        href="tel:0881023469000"
+                        href={`tel:${(landingContact?.phone_1 || '').replace(/[^0-9+]/g, '')}`}
                         className="font-medium hover:text-primary-700"
                       >
-                        0881-0234-69000
+                        {landingContact?.phone_1 || '0881-0234-69000'}
                       </a>
-                      <span className="text-slate-300">/</span>
-                      <a
-                        href="tel:082119955657"
-                        className="font-medium hover:text-primary-700"
-                      >
-                        0821-1995-5657
-                      </a>
+                      {landingContact?.phone_2 ? (
+                        <>
+                          <span className="text-slate-300">/</span>
+                          <a
+                            href={`tel:${landingContact.phone_2.replace(/[^0-9+]/g, '')}`}
+                            className="font-medium hover:text-primary-700"
+                          >
+                            {landingContact.phone_2}
+                          </a>
+                        </>
+                      ) : null}
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <Mail className="mt-0.5 h-4 w-4 text-primary-600" />
                     <a
-                      href="mailto:Nonfloristsumedang@gmail.com"
+                      href={`mailto:${landingContact?.email || 'Nonfloristsumedang@gmail.com'}`}
                       className="break-all font-medium hover:text-primary-700"
                     >
-                      Nonfloristsumedang@gmail.com
+                      {landingContact?.email || 'Nonfloristsumedang@gmail.com'}
                     </a>
                   </div>
                 </div>
@@ -259,14 +274,14 @@ function LandingLayout() {
               <div className="space-y-4 md:border-l md:border-primary-100 md:pl-6">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary-500">
-                    Address
+                    {landingContact?.address_title || 'Address'}
                   </p>
                 </div>
 
                 <div className="flex items-start gap-3 text-sm text-slate-700">
                   <MapPin className="mt-0.5 h-4 w-4 text-primary-600" />
                   <span className="leading-relaxed">
-                    Jl Angrek No 147A kecamatan Sumedang Utara
+                    {landingContact?.address || 'Jl Angrek No 147A kecamatan Sumedang Utara'}
                   </span>
                 </div>
               </div>

@@ -199,6 +199,54 @@ async function initDb() {
   await pool.query(
     `
     INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('landing_contact_title', ?)
+  `,
+    ['Contact'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('landing_contact_phone_1', ?)
+  `,
+    ['0881-0234-69000'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('landing_contact_phone_2', ?)
+  `,
+    ['0821-1995-5657'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('landing_contact_email', ?)
+  `,
+    ['Nonfloristsumedang@gmail.com'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('landing_contact_address_title', ?)
+  `,
+    ['Address'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
+    VALUES ('landing_contact_address', ?)
+  `,
+    ['Jl Angrek No 147A kecamatan Sumedang Utara'],
+  )
+
+  await pool.query(
+    `
+    INSERT IGNORE INTO settings (setting_key, setting_value)
     VALUES ('home_hero_image_url', ?)
     `,
     [''],
@@ -1264,8 +1312,8 @@ app.put('/api/settings/:key', async (req, res) => {
   const { key } = req.params
   const { value } = req.body
 
-  if (typeof value !== 'string' || !value.trim()) {
-    return res.status(400).json({ message: 'Value tidak boleh kosong' })
+  if (typeof value !== 'string') {
+    return res.status(400).json({ message: 'Value harus berupa string' })
   }
 
   await pool.query(
@@ -1415,6 +1463,28 @@ app.get('/api/public/settings', async (_req, res) => {
   const homeHeroImageUrl = getValue('home_hero_image_url', '')
   const homeWhyImageUrl = getValue('home_why_image_url', '')
 
+  const landingContactTitle = getValue('landing_contact_title', 'Contact')
+  const landingContactPhone1 = getValue(
+    'landing_contact_phone_1',
+    '0881-0234-69000',
+  )
+  const landingContactPhone2 = getValue(
+    'landing_contact_phone_2',
+    '0821-1995-5657',
+  )
+  const landingContactEmail = getValue(
+    'landing_contact_email',
+    'Nonfloristsumedang@gmail.com',
+  )
+  const landingContactAddressTitle = getValue(
+    'landing_contact_address_title',
+    'Address',
+  )
+  const landingContactAddress = getValue(
+    'landing_contact_address',
+    'Jl Angrek No 147A kecamatan Sumedang Utara',
+  )
+
   const aboutTitle = getValue(
     'about_title',
     'Studio buket modern dengan sentuhan personal.',
@@ -1541,6 +1611,14 @@ app.get('/api/public/settings', async (_req, res) => {
     operational_hours: operationalHours,
     instagram_handle: instagramHandle,
     landing_logo_url: landingLogoUrl,
+    landing_contact: {
+      title: landingContactTitle,
+      phone_1: landingContactPhone1,
+      phone_2: landingContactPhone2,
+      email: landingContactEmail,
+      address_title: landingContactAddressTitle,
+      address: landingContactAddress,
+    },
     about: {
       subtitle: aboutSubtitle,
       title: aboutTitle,

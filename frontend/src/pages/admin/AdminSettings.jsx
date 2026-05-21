@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
+const API_URL = 'https://api.kingcreativestudio.my.id/nonadeflorist'
 
 function AdminSettings() {
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [operationalHours, setOperationalHours] = useState('')
   const [instagramHandle, setInstagramHandle] = useState('')
   const [landingLogoUrl, setLandingLogoUrl] = useState('')
+  const [landingContactTitle, setLandingContactTitle] = useState('')
+  const [landingContactPhone1, setLandingContactPhone1] = useState('')
+  const [landingContactPhone2, setLandingContactPhone2] = useState('')
+  const [landingContactEmail, setLandingContactEmail] = useState('')
+  const [landingContactAddressTitle, setLandingContactAddressTitle] = useState('')
+  const [landingContactAddress, setLandingContactAddress] = useState('')
   const [aboutTitle, setAboutTitle] = useState('')
   const [aboutSubtitle, setAboutSubtitle] = useState('')
   const [aboutParagraph1, setAboutParagraph1] = useState('')
@@ -61,6 +67,21 @@ function AdminSettings() {
         setOperationalHours(getValue('operational_hours'))
         setInstagramHandle(getValue('instagram_handle'))
         setLandingLogoUrl(getValue('landing_logo_url'))
+        setLandingContactTitle(getValue('landing_contact_title') || 'Contact')
+        setLandingContactPhone1(
+          getValue('landing_contact_phone_1') || '0881-0234-69000',
+        )
+        setLandingContactPhone2(getValue('landing_contact_phone_2') || '0821-1995-5657')
+        setLandingContactEmail(
+          getValue('landing_contact_email') || 'Nonfloristsumedang@gmail.com',
+        )
+        setLandingContactAddressTitle(
+          getValue('landing_contact_address_title') || 'Address',
+        )
+        setLandingContactAddress(
+          getValue('landing_contact_address') ||
+            'Jl Angrek No 147A kecamatan Sumedang Utara',
+        )
         setAboutTitle(getValue('about_title'))
         setAboutSubtitle(getValue('about_subtitle'))
         setAboutParagraph1(getValue('about_paragraph_1'))
@@ -128,6 +149,24 @@ function AdminSettings() {
         }),
         axios.put(`${API_URL}/api/settings/landing_logo_url`, {
           value: landingLogoUrl,
+        }),
+        axios.put(`${API_URL}/api/settings/landing_contact_title`, {
+          value: landingContactTitle,
+        }),
+        axios.put(`${API_URL}/api/settings/landing_contact_phone_1`, {
+          value: landingContactPhone1,
+        }),
+        axios.put(`${API_URL}/api/settings/landing_contact_phone_2`, {
+          value: landingContactPhone2,
+        }),
+        axios.put(`${API_URL}/api/settings/landing_contact_email`, {
+          value: landingContactEmail,
+        }),
+        axios.put(`${API_URL}/api/settings/landing_contact_address_title`, {
+          value: landingContactAddressTitle,
+        }),
+        axios.put(`${API_URL}/api/settings/landing_contact_address`, {
+          value: landingContactAddress,
         }),
         axios.put(`${API_URL}/api/settings/about_title`, {
           value: aboutTitle,
@@ -338,6 +377,88 @@ function AdminSettings() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="pt-2 border-t border-slate-100 space-y-3">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+            Landing - Contact Section
+          </h3>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">
+                Judul kolom kiri (misal: Contact)
+              </label>
+              <input
+                value={landingContactTitle}
+                onChange={(e) => setLandingContactTitle(e.target.value)}
+                disabled={loading}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">
+                Judul kolom kanan (misal: Address)
+              </label>
+              <input
+                value={landingContactAddressTitle}
+                onChange={(e) => setLandingContactAddressTitle(e.target.value)}
+                disabled={loading}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">
+                Nomor CP 1
+              </label>
+              <input
+                value={landingContactPhone1}
+                onChange={(e) => setLandingContactPhone1(e.target.value)}
+                disabled={loading}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">
+                Nomor CP 2 (opsional)
+              </label>
+              <input
+                value={landingContactPhone2}
+                onChange={(e) => setLandingContactPhone2(e.target.value)}
+                disabled={loading}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">
+                Email
+              </label>
+              <input
+                type="email"
+                value={landingContactEmail}
+                onChange={(e) => setLandingContactEmail(e.target.value)}
+                disabled={loading}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">
+                Alamat
+              </label>
+              <input
+                value={landingContactAddress}
+                onChange={(e) => setLandingContactAddress(e.target.value)}
+                disabled={loading}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm outline-none ring-primary-200 focus:ring-2 disabled:bg-slate-100"
+              />
+            </div>
           </div>
         </div>
 

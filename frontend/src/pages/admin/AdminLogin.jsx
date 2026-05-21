@@ -2,7 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
-const API_URL = 'https://api-inventory.isavralabel.com/nonadeflorist'
+const API_URL = 'https://api.kingcreativestudio.my.id/nonadeflorist'
 
 function AdminLogin() {
   const [username, setUsername] = useState('')
